@@ -55,17 +55,23 @@ class TaipeiIndex(object):
 
         return name_rid_map
 
-class TaipeiRoute(object):
+class Route(object):
+
+    # NOTE: It's an abstract class, please inherit and override those attrs:
+    #
+    # 1. PAGE_URL_TPL
+    # 2. API_URL_TPL
+    #
 
     # sec = 0 # 去程
     # sec = 1 # 回程
-    PAGE_URL_TPL = 'http://e-bus.taipei.gov.tw/newmap/Tw/Map?rid={rid}&sec={sec}'
+    PAGE_URL_TPL = ''
 
     @classmethod
     def _format_page_url(cls, rid, sec):
         return cls.PAGE_URL_TPL.format(rid=rid, sec=sec)
 
-    API_URL_TPL = 'http://e-bus.taipei.gov.tw/newmap/Js/RouteInfo?rid={rid}&sec={sec}&_={_}'
+    API_URL_TPL = ''
 
     @classmethod
     def _format_api_url(cls, rid, sec):
@@ -113,16 +119,30 @@ class TaipeiRoute(object):
             for d in json.loads(self._get_api_text(sec))['Etas']
         }
 
+class TaipeiRoute(Route):
+
+    PAGE_URL_TPL = 'http://e-bus.taipei.gov.tw/newmap/Tw/Map?rid={rid}&sec={sec}'
+    API_URL_TPL = 'http://e-bus.taipei.gov.tw/newmap/Js/RouteInfo?rid={rid}&sec={sec}&_={_}'
+
+class NewTaipeiRoute(Route):
+
+    PAGE_URL_TPL = 'http://e-bus.ntpc.gov.tw/NTPCRoute/Tw/Map?rid={rid}&sec={sec}'
+    API_URL_TPL = 'http://e-bus.ntpc.gov.tw/NTPCRoute/Js/RouteInfo?rid={rid}&sec={sec}&_={_}'
+
 if __name__ == '__main__':
 
     import uniout
     from pprint import pprint
 
-    tpi = TaipeiIndex()
-    pprint(tpi.get_name_rid_map())
-
-    import sys; sys.exit()
-
     tpr1 = TaipeiRoute('10723')
     pprint(tpr1.get_idx_name_map(0))
     pprint(tpr1.get_idx_eta_map(0))
+
+    ntr1 = NewTaipeiRoute('114')
+    pprint(ntr1.get_idx_name_map(0))
+    pprint(ntr1.get_idx_eta_map(0))
+
+    import sys; sys.exit()
+
+    tpi = TaipeiIndex()
+    pprint(tpi.get_name_rid_map())
