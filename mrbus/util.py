@@ -9,7 +9,7 @@ from mosql.db import Database
 
 db = Database(psycopg2, user=getuser())
 
-def setup_tables():
+def create_tables():
 
     # route
     #
@@ -73,7 +73,7 @@ def setup_tables():
             create index on interval (stop_id)
         ''')
 
-def teardown_tables():
+def drop_tables():
 
     with db as cur:
         cur.execute('drop table interval')
