@@ -13,16 +13,16 @@ from time import time
 from urlparse import urlparse, parse_qs
 from lxml import html
 
-HEADERS = {
+_HEADERS = {
     'Referer': 'https://www.google.com/',
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
 }
 
 def _fetch_text(url, referer=None, encoding=None):
 
-    headers = HEADERS
+    headers = _HEADERS
     if referer is not None:
-        headers = HEADERS.copy()
+        headers = _HEADERS.copy()
         headers['Referer'] = referer
 
     resp = requests.get(url, headers=headers)
@@ -110,17 +110,17 @@ class _Route(object):
 
     # sec = 0 # 去程
     # sec = 1 # 回程
-    PAGE_URL_TPL = ''
+    _PAGE_URL_TPL = ''
 
     @classmethod
     def _format_page_url(cls, rid, sec):
-        return cls.PAGE_URL_TPL.format(rid=rid, sec=sec)
+        return cls._PAGE_URL_TPL.format(rid=rid, sec=sec)
 
-    API_URL_TPL = ''
+    _API_URL_TPL = ''
 
     @classmethod
     def _format_api_url(cls, rid, sec):
-        return cls.API_URL_TPL.format(rid=rid, sec=sec, _=int(time()*1000))
+        return cls._API_URL_TPL.format(rid=rid, sec=sec, _=int(time()*1000))
 
     def __init__(self, rid, sec):
 
@@ -134,7 +134,7 @@ class _Route(object):
     def _fetch_page_text(self):
         return _fetch_text(
             self._format_page_url(self._rid, self._sec),
-            referer = TaipeiRouteIndex.URL
+            referer = _TaipeiRouteIndex.URL
         )
 
     def _fetch_api_text(self):
@@ -209,23 +209,23 @@ class _Route(object):
 
 class TaipeiRoute(_Route):
 
-    PAGE_URL_TPL = 'http://e-bus.taipei.gov.tw/newmap/Tw/Map?rid={rid}&sec={sec}'
-    API_URL_TPL = 'http://e-bus.taipei.gov.tw/newmap/Js/RouteInfo?rid={rid}&sec={sec}&_={_}'
+    _PAGE_URL_TPL = 'http://e-bus.taipei.gov.tw/newmap/Tw/Map?rid={rid}&sec={sec}'
+    _API_URL_TPL = 'http://e-bus.taipei.gov.tw/newmap/Js/RouteInfo?rid={rid}&sec={sec}&_={_}'
 
 class NewTaipeiRoute(_Route):
 
-    PAGE_URL_TPL = 'http://e-bus.ntpc.gov.tw/NTPCRoute/Tw/Map?rid={rid}&sec={sec}'
-    API_URL_TPL = 'http://e-bus.ntpc.gov.tw/NTPCRoute/Js/RouteInfo?rid={rid}&sec={sec}&_={_}'
+    _PAGE_URL_TPL = 'http://e-bus.ntpc.gov.tw/NTPCRoute/Tw/Map?rid={rid}&sec={sec}'
+    _API_URL_TPL = 'http://e-bus.ntpc.gov.tw/NTPCRoute/Js/RouteInfo?rid={rid}&sec={sec}&_={_}'
 
 if __name__ == '__main__':
 
     import uniout
     from pprint import pprint
 
-    tpri = TaipeiRouteIndex()
+    tpri = get_taipei_route_index()
     pprint(tpri.get_name_rid_map())
 
-    npri = NewTaipeiRouteIndex()
+    npri = get_new_taipei_route_index()
     pprint(npri.get_name_rid_map())
 
     tpr1 = TaipeiRoute('10723', 0)
