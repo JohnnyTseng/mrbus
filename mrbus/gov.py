@@ -81,7 +81,7 @@ class NewTaipeiIndex(object):
 
         return name_rid_map
 
-class Route(object):
+class _Route(object):
 
     # NOTE: It's an abstract class, please inherit and override those attrs:
     #
@@ -145,12 +145,12 @@ class Route(object):
             for d in json.loads(self._get_api_text(sec))['Etas']
         }
 
-class TaipeiRoute(Route):
+class TaipeiRoute(_Route):
 
     PAGE_URL_TPL = 'http://e-bus.taipei.gov.tw/newmap/Tw/Map?rid={rid}&sec={sec}'
     API_URL_TPL = 'http://e-bus.taipei.gov.tw/newmap/Js/RouteInfo?rid={rid}&sec={sec}&_={_}'
 
-class NewTaipeiRoute(Route):
+class NewTaipeiRoute(_Route):
 
     PAGE_URL_TPL = 'http://e-bus.ntpc.gov.tw/NTPCRoute/Tw/Map?rid={rid}&sec={sec}'
     API_URL_TPL = 'http://e-bus.ntpc.gov.tw/NTPCRoute/Js/RouteInfo?rid={rid}&sec={sec}&_={_}'
