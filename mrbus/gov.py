@@ -160,6 +160,7 @@ class _Route(object):
     def _transform_to_idx_eta_map(self, d):
 
         # eta -> 255 means 未發車
+        # eta -> 254 means 末班車已過
 
         return {
             d['idx']: d['eta']
