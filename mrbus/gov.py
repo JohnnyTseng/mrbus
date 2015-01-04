@@ -125,29 +125,32 @@ class _Route(object):
     def _format_api_url(cls, rid, sec):
         return cls.API_URL_TPL.format(rid=rid, sec=sec, _=int(time()*1000))
 
-    def __init__(self, rid):
+    def __init__(self, rid, sec):
+
         self._rid = rid
+        self._sec = sec
+
         self._idx_name_map = None
         self._idx_eta_map = None
         self._idx_bus_map = None
 
-    def _get_page_text(self, sec):
+    def _fetch_page_text(self):
         return _session_get_text(
-            self._format_page_url(self._rid, sec),
+            self._format_page_url(self._rid, self._sec),
             referer = TaipeiIndex.URL
         )
 
-    def _get_api_text(self, sec):
+    def _fetch_api_text(self):
         return _session_get_text(
-            self._format_api_url(self._rid, sec),
-            referer = self._format_page_url(self._rid, sec),
+            self._format_api_url(self._rid, self._sec),
+            referer = self._format_page_url(self._rid, self._sec),
         )
 
-    def fetch_idx_name_map(self, sec):
+    def _parse_to_idx_name_map(self, page_text):
 
         idx_name_map = {}
 
-        root = html.fromstring(self._get_page_text(sec))
+        root = html.fromstring(page_text)
         for stop_div in root.xpath("//*[contains(@class, 'stop ')]"):
             stop_idx = int(stop_div.xpath(".//*[@class='eta']")[0].get('id').partition('_')[2])
             stop_name = stop_div.xpath(".//*[@class='stopName']")[0][0].text
@@ -155,20 +158,51 @@ class _Route(object):
 
         return idx_name_map
 
-    def fetch_idx_eta_map(self, sec):
-
-        # TODO: get the plate number
-        #
-        # {u'Buses': [{u'bn': u'016-FR', u'fl': u'l', u'idx': 14, u'io': u'o'},
-        #             {u'bn': u'035-FR', u'fl': u'l', u'idx': 16, u'io': u'o'},
-        #             {u'bn': u'013-FR', u'fl': u'l', u'idx': 4, u'io': u'i'}],
+    def _transform_to_idx_eta_map(self, d):
 
         # eta -> 255 means 未發車
 
         return {
             d['idx']: d['eta']
-            for d in json.loads(self._get_api_text(sec))['Etas']
+            for d in d['Etas']
         }
+
+    def _transform_to_idx_bus_map(self, d):
+
+        # TODO: what is fl and io?
+
+        return {
+            d['idx']: d
+            for d in d['Buses']
+        }
+
+    def _parse_api_text(self, api_text):
+        d = json.loads(api_text)
+        return (
+            self._transform_to_idx_eta_map(d),
+            self._transform_to_idx_bus_map(d)
+        )
+
+    def get_idx_name_map(self):
+
+        if self._idx_name_map is None:
+            self._idx_name_map = self._parse_to_idx_name_map(self._fetch_page_text())
+
+        return self._idx_name_map
+
+    def get_idx_eta_map(self):
+
+        if self._idx_eta_map is None:
+            self._idx_eta_map, self._idx_bus_map = self._parse_api_text(self._fetch_api_text())
+
+        return self._idx_eta_map
+
+    def get_idx_bus_map(self):
+
+        if self._idx_bus_map is None:
+            self._idx_eta_map, self._idx_bus_map = self._parse_api_text(self._fetch_api_text())
+
+        return self._idx_bus_map
 
 class TaipeiRoute(_Route):
 
@@ -185,18 +219,20 @@ if __name__ == '__main__':
     import uniout
     from pprint import pprint
 
+    tpr1 = TaipeiRoute('10723', 0)
+    pprint(tpr1.get_idx_name_map())
+    pprint(tpr1.get_idx_eta_map())
+    pprint(tpr1.get_idx_bus_map())
+
+    ntr1 = NewTaipeiRoute('114', 0)
+    pprint(ntr1.get_idx_name_map())
+    pprint(ntr1.get_idx_eta_map())
+    pprint(ntr1.get_idx_bus_map())
+
+    import sys; sys.exit()
+
     tpi = TaipeiIndex()
     pprint(tpi.get_name_rid_map())
 
     npi = NewTaipeiIndex()
     pprint(npi.get_name_rid_map())
-
-    import sys; sys.exit()
-
-    tpr1 = TaipeiRoute('10723')
-    pprint(tpr1.get_idx_name_map(0))
-    pprint(tpr1.get_idx_eta_map(0))
-
-    ntr1 = NewTaipeiRoute('114')
-    pprint(ntr1.get_idx_name_map(0))
-    pprint(ntr1.get_idx_eta_map(0))
