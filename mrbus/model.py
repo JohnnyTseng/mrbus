@@ -4,7 +4,7 @@
 from mrbus.gov import *
 from mrbus.exc import *
 from mrbus.pool import Pool, do
-from mrbus.util import db
+from mrbus.conn import db
 
 def get_route_id(route_name):
 

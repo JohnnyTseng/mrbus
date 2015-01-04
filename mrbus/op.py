@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from mrbus.util import db
+from mrbus.conn import db
 
 def create_tables():
 
