@@ -3,7 +3,7 @@
 
 __all__ = [
     'get_taipei_route_index', 'get_new_taipei_route_index',
-    'TaipeiRoute', 'NewTaipeiRoute'
+    'TaipeiRoutePage', 'NewTaipeiRoutePage'
 ]
 
 import re
@@ -122,7 +122,7 @@ def get_new_taipei_route_index():
 
     return _ntri
 
-class _Route(object):
+class _RoutePage(object):
 
     # NOTE: It's an abstract class, please inherit and override those attrs:
     #
@@ -229,12 +229,12 @@ class _Route(object):
             )
         return self._idx_bus_map
 
-class TaipeiRoute(_Route):
+class TaipeiRoutePage(_RoutePage):
 
     _PAGE_URL_TPL = 'http://e-bus.taipei.gov.tw/newmap/Tw/Map?rid={rid}&sec={sec}'
     _API_URL_TPL = 'http://e-bus.taipei.gov.tw/newmap/Js/RouteInfo?rid={rid}&sec={sec}&_={_}'
 
-class NewTaipeiRoute(_Route):
+class NewTaipeiRoutePage(_RoutePage):
 
     _PAGE_URL_TPL = 'http://e-bus.ntpc.gov.tw/NTPCRoute/Tw/Map?rid={rid}&sec={sec}'
     _API_URL_TPL = 'http://e-bus.ntpc.gov.tw/NTPCRoute/Js/RouteInfo?rid={rid}&sec={sec}&_={_}'
@@ -250,12 +250,12 @@ if __name__ == '__main__':
     npri = get_new_taipei_route_index()
     pprint(npri.get_name_rid_map())
 
-    tpr1 = TaipeiRoute('10723', 0)
+    tpr1 = TaipeiRoutePage('10723', 0)
     pprint(tpr1.get_idx_name_map())
     pprint(tpr1.get_idx_eta_map())
     pprint(tpr1.get_idx_bus_map())
 
-    ntr1 = NewTaipeiRoute('114', 0)
+    ntr1 = NewTaipeiRoutePage('114', 0)
     pprint(ntr1.get_idx_name_map())
     pprint(ntr1.get_idx_eta_map())
     pprint(ntr1.get_idx_bus_map())
