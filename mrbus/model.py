@@ -22,7 +22,7 @@ def get_route_id(route_name):
 
     return None
 
-def get_route_page_pair(route_id):
+def _get_route_page_pair(route_id):
 
     prefix, _, rid = route_id.partition('_')
 
@@ -60,7 +60,7 @@ class Route(dict):
 
         self['id'] = id
 
-        route_page_pair = get_route_page_pair(id)
+        route_page_pair = _get_route_page_pair(id)
         if route_page_pair is None:
             raise RouteIDError(id)
 
