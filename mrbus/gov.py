@@ -230,7 +230,7 @@ class _RoutePage(object):
             )
         return self._idx_bus_map
 
-    def clear(self):
+    def clear_cache(self):
         self._idx_name_map = None
         self._idx_eta_map = None
         self._idx_bus_map = None

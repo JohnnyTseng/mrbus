@@ -69,7 +69,7 @@ class Route(dict):
     def fetch_stop_waitings(self):
 
         for rpage in self._route_page_pair:
-            rpage.clear()
+            rpage.clear_cache()
 
         # --- speed up ---
         # use threads to fetch data
