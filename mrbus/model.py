@@ -45,7 +45,7 @@ _pool = Pool()
 class Route(dict):
 
     @classmethod
-    def init_from_name(self, name):
+    def init_by_name(self, name):
 
         route_id = get_route_id(name)
         if route_id is None:
@@ -113,9 +113,9 @@ if __name__ == '__main__':
     import uniout
     from pprint import pprint
 
-    route = Route.init_from_name('1')
+    route = Route.init_by_name('1')
     pprint(route.fetch_stop_waitings())
     print
 
-    route = Route.init_from_name('241')
+    route = Route.init_by_name('241')
     pprint(route.fetch_stop_waitings())
