@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+__all__ = ['TaipeiIndex', 'NewTaipeiIndex', 'TaipeiRoute', 'NewTaipeiRoute']
+
 import re
 import json
 import requests

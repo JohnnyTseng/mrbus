@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+__all__ = ['db', 'setup_tables', 'teardown_tables']
+
 import psycopg2
 from getpass import getuser
 from mosql.db import Database
