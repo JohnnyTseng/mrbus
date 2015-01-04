@@ -5,6 +5,7 @@ import re
 import json
 import requests
 from time import time
+from urlparse import urlparse, parse_qs
 from lxml import html
 
 session = requests.Session()
@@ -24,10 +25,10 @@ def _session_get_text(url, referer=None, encoding=None):
 
     last_url = url
 
-    if encoding is None:
-        return resp.text
-    else:
-        return resp.content.decode(encoding)
+    if encoding is not None:
+        resp.encoding = encoding
+
+    return resp.text
 
 class TaipeiIndex(object):
 
@@ -52,6 +53,29 @@ class TaipeiIndex(object):
             name_rid_map[m.group('name')] = m.group('rid')
         for m in self.EBUS_A_RE.finditer(text):
             name_rid_map[m.group('name')] = m.group('rid')
+
+        return name_rid_map
+
+class NewTaipeiIndex(object):
+
+    URL = 'http://e-bus.ntpc.gov.tw/'
+
+    def _get_index_text(self):
+        return _session_get_text(self.URL, encoding='utf-8')
+
+    def get_name_rid_map(self):
+
+        name_rid_map = {}
+
+        root = html.fromstring(self._get_index_text())
+        for a in root.xpath('//a'):
+
+            r = urlparse(a.get('href'))
+            if r.path == '../NTPCRoute/Tw/Map':
+
+                d = parse_qs(r.query)
+                if 'rid' in d:
+                    name_rid_map[a.text] = d['rid'][0]
 
         return name_rid_map
 
@@ -134,6 +158,14 @@ if __name__ == '__main__':
     import uniout
     from pprint import pprint
 
+    tpi = TaipeiIndex()
+    pprint(tpi.get_name_rid_map())
+
+    npi = NewTaipeiIndex()
+    pprint(npi.get_name_rid_map())
+
+    import sys; sys.exit()
+
     tpr1 = TaipeiRoute('10723')
     pprint(tpr1.get_idx_name_map(0))
     pprint(tpr1.get_idx_eta_map(0))
@@ -141,8 +173,3 @@ if __name__ == '__main__':
     ntr1 = NewTaipeiRoute('114')
     pprint(ntr1.get_idx_name_map(0))
     pprint(ntr1.get_idx_eta_map(0))
-
-    import sys; sys.exit()
-
-    tpi = TaipeiIndex()
-    pprint(tpi.get_name_rid_map())
