@@ -44,7 +44,7 @@ def create_tables():
 
         cur.execute('''
             create table stop (
-                id         serial primary key,
+                id         text primary key,
                 name       text,
                 updated_ts timestamp,
                 created_ts timestamp
@@ -54,7 +54,7 @@ def create_tables():
         cur.execute('''
             create table interval (
                 route_id     text references route (id),
-                stop_id      int  references stop (id),
+                stop_id      text references stop (id),
                 it_is_return bool,
                 interval_min smallint,
                 updated_ts   timestamp,
