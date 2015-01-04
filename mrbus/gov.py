@@ -10,22 +10,20 @@ from time import time
 from urlparse import urlparse, parse_qs
 from lxml import html
 
-session = requests.Session()
-session.headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
+HEADERS = {
+    'Referer': 'https://www.google.com/',
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
+}
 
-def _session_get_text(url, referer=None, encoding=None):
+def _fetch_text(url, referer=None, encoding=None):
 
-    global session
+    headers = HEADERS
+    if referer is not None:
+        headers = HEADERS.copy()
+        headers['Referer'] = referer
 
-    if referer is None:
-        referer = 'https://www.google.com/'
-
-    session.headers['Referer'] = referer
-
-    resp = session.get(url)
+    resp = requests.get(url, headers=headers)
     resp.raise_for_status()
-
-    last_url = url
 
     if encoding is not None:
         resp.encoding = encoding
@@ -34,30 +32,29 @@ def _session_get_text(url, referer=None, encoding=None):
 
 class _Index(object):
 
-    @classmethod
-    def _fetch_index_text(cls):
-        raise NotImplementedError('_fetch_index_text')
-
-    @classmethod
-    def _parse_to_name_rid_map(self, text):
-        raise NotImplementedError('_parse_to_name_rid_map')
-
     def __init__(self):
         self._name_rid_map = None
 
+    def _fetch_index_text(self):
+        raise NotImplementedError('_fetch_index_text')
+
+    def _parse_to_name_rid_map(self, text):
+        raise NotImplementedError('_parse_to_name_rid_map')
+
     def get_name_rid_map(self):
         if self._name_rid_map is None:
-            self._name_rid_map = self._parse_to_name_rid_map(self._fetch_index_text())
+            self._name_rid_map = self._parse_to_name_rid_map(
+                self._fetch_index_text()
+            )
         return self._name_rid_map
 
 class TaipeiIndex(_Index):
 
     URL = 'http://e-bus.taipei.gov.tw/'
 
-    @classmethod
-    def _fetch_index_text(cls):
-        return _session_get_text(
-            cls.URL,
+    def _fetch_index_text(self):
+        return _fetch_text(
+            self.URL,
             encoding = 'utf-8'
         )
 
@@ -65,15 +62,14 @@ class TaipeiIndex(_Index):
     EBUS_CALL_RE = re.compile(ur'eBus1?(?:_0)?\(".*?","(?P<rid>.+?)","(?P<name>.+?)"\)')
     EBUS_A_RE = re.compile(ur'''<a href='javascript:openEbus1?\("(?P<rid>.+?)"\)'>(?P<name>.+?)</a>''')
 
-    @classmethod
-    def _parse_to_name_rid_map(cls, text):
+    def _parse_to_name_rid_map(self, text):
 
         name_rid_map = {}
 
-        nocomment_text = cls.JS_BLOCK_COMMENT_RE.sub('', text)
-        for m in cls.EBUS_CALL_RE.finditer(nocomment_text):
+        nocomment_text = self.JS_BLOCK_COMMENT_RE.sub('', text)
+        for m in self.EBUS_CALL_RE.finditer(nocomment_text):
             name_rid_map[m.group('name')] = m.group('rid')
-        for m in cls.EBUS_A_RE.finditer(nocomment_text):
+        for m in self.EBUS_A_RE.finditer(nocomment_text):
             name_rid_map[m.group('name')] = m.group('rid')
 
         return name_rid_map
@@ -82,12 +78,10 @@ class NewTaipeiIndex(_Index):
 
     URL = 'http://e-bus.ntpc.gov.tw/'
 
-    @classmethod
-    def _fetch_index_text(cls):
-        return _session_get_text(cls.URL, encoding='utf-8')
+    def _fetch_index_text(self):
+        return _fetch_text(self.URL, encoding='utf-8')
 
-    @classmethod
-    def _parse_to_name_rid_map(cls, text):
+    def _parse_to_name_rid_map(self, text):
 
         name_rid_map = {}
 
@@ -135,13 +129,13 @@ class _Route(object):
         self._idx_bus_map = None
 
     def _fetch_page_text(self):
-        return _session_get_text(
+        return _fetch_text(
             self._format_page_url(self._rid, self._sec),
             referer = TaipeiIndex.URL
         )
 
     def _fetch_api_text(self):
-        return _session_get_text(
+        return _fetch_text(
             self._format_api_url(self._rid, self._sec),
             referer = self._format_page_url(self._rid, self._sec),
         )
@@ -152,7 +146,12 @@ class _Route(object):
 
         root = html.fromstring(page_text)
         for stop_div in root.xpath("//*[contains(@class, 'stop ')]"):
-            stop_idx = int(stop_div.xpath(".//*[@class='eta']")[0].get('id').partition('_')[2])
+            stop_idx = int(
+                stop_div
+                .xpath(".//*[@class='eta']")[0]
+                .get('id')
+                .partition('_')[2]
+            )
             stop_name = stop_div.xpath(".//*[@class='stopName']")[0][0].text
             idx_name_map[stop_idx] = stop_name
 
@@ -184,24 +183,24 @@ class _Route(object):
         )
 
     def get_idx_name_map(self):
-
         if self._idx_name_map is None:
-            self._idx_name_map = self._parse_to_idx_name_map(self._fetch_page_text())
-
+            self._idx_name_map = self._parse_to_idx_name_map(
+                self._fetch_page_text()
+            )
         return self._idx_name_map
 
     def get_idx_eta_map(self):
-
         if self._idx_eta_map is None:
-            self._idx_eta_map, self._idx_bus_map = self._parse_api_text(self._fetch_api_text())
-
+            self._idx_eta_map, self._idx_bus_map = self._parse_api_text(
+                self._fetch_api_text()
+            )
         return self._idx_eta_map
 
     def get_idx_bus_map(self):
-
         if self._idx_bus_map is None:
-            self._idx_eta_map, self._idx_bus_map = self._parse_api_text(self._fetch_api_text())
-
+            self._idx_eta_map, self._idx_bus_map = self._parse_api_text(
+                self._fetch_api_text()
+            )
         return self._idx_bus_map
 
 class TaipeiRoute(_Route):
