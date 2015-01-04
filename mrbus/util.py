@@ -80,6 +80,9 @@ def drop_tables():
         cur.execute('drop table stop')
         cur.execute('drop table route')
 
+def escape_like_operand(s):
+    return s.replace('\\', '\\\\').replce('_', '\_').replace('%', '\%')
+
 if __name__ == '__main__':
 
     import clime
