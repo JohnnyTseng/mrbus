@@ -4,7 +4,7 @@
 from threading import Thread
 from Queue import Queue
 
-class Worker(Thread):
+class _Worker(Thread):
 
     daemon = True
 
@@ -32,7 +32,7 @@ class Pool(object):
         self._next_no = 0
 
         for i in range(n):
-            worker = Worker(self._task_que, self._result_que)
+            worker = _Worker(self._task_que, self._result_que)
             worker.start()
 
     def _get_next_no(self):
