@@ -65,6 +65,9 @@ class Pool(object):
 
         return [result for _, result in no_result_pairs]
 
+def do(f):
+    return f()
+
 if __name__ == '__main__':
 
     from time import sleep

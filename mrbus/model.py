@@ -3,6 +3,7 @@
 
 from mrbus.gov import *
 from mrbus.exc import *
+from mrbus.pool import Pool, do
 from mrbus.util import db
 
 def get_route_id(route_name):
@@ -39,6 +40,8 @@ def get_route_page_pair(route_id):
 
     return None
 
+_pool = Pool()
+
 class Route(dict):
 
     @classmethod
@@ -67,6 +70,17 @@ class Route(dict):
 
         for rpage in self._route_page_pair:
             rpage.clear()
+
+        # --- speed up ---
+        # use threads to fetch data
+
+        tasks = []
+        for rpage in self._route_page_pair:
+            tasks.append(rpage.get_idx_name_map)
+            tasks.append(rpage.get_idx_eta_map)
+        _pool.map(do, tasks)
+
+        # --- end ---
 
         stop_waitings = []
 
