@@ -3,8 +3,11 @@
 
 from mrbus.gov import *
 from mrbus.exc import *
+from mrbus.util import get_now_dt
 from mrbus.pool import Pool, do
 from mrbus.conn import db
+from mosql.query import insert
+from mosql.db import one_to_dict
 
 def _get_route_id(route_name):
 
@@ -66,6 +69,47 @@ class Route(dict):
 
         self._route_page_pair = route_page_pair
 
+    def merge_into_db(self):
+
+        assert self['name'], 'must have name'
+
+        with db as cur:
+
+            cur.execute('''
+                select
+                    *
+                from
+                    route
+                where
+                    id = %s
+                for
+                    update
+            ''', (self['id'], ))
+
+            try:
+                d = one_to_dict(cur)
+            except TypeError:
+                d = None
+
+            if d is None:
+
+                now_dt = get_now_dt()
+                self['updated_ts'] = now_dt
+                self['created_ts'] = now_dt
+
+                cur.execute(insert('route', set=self))
+
+            elif d['name'] != self['name']:
+
+                now_dt = get_now_dt()
+                self['updated_ts'] = now_dt
+
+                cur.execute(update(
+                    'route',
+                    set   = {k: self[k] for k in ('name', 'updated_ts')},
+                    where = {'id': self['id']}
+                ))
+
     def fetch_stop_waitings(self):
 
         for rpage in self._route_page_pair:
@@ -115,6 +159,7 @@ if __name__ == '__main__':
 
     route = Route.init_by_name('1')
     pprint(route.fetch_stop_waitings())
+    route.merge_into_db()
     print
 
     route = Route.init_by_name('241')
