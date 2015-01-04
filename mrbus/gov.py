@@ -219,6 +219,12 @@ if __name__ == '__main__':
     import uniout
     from pprint import pprint
 
+    tpi = TaipeiIndex()
+    pprint(tpi.get_name_rid_map())
+
+    npi = NewTaipeiIndex()
+    pprint(npi.get_name_rid_map())
+
     tpr1 = TaipeiRoute('10723', 0)
     pprint(tpr1.get_idx_name_map())
     pprint(tpr1.get_idx_eta_map())
@@ -228,11 +234,3 @@ if __name__ == '__main__':
     pprint(ntr1.get_idx_name_map())
     pprint(ntr1.get_idx_eta_map())
     pprint(ntr1.get_idx_bus_map())
-
-    import sys; sys.exit()
-
-    tpi = TaipeiIndex()
-    pprint(tpi.get_name_rid_map())
-
-    npi = NewTaipeiIndex()
-    pprint(npi.get_name_rid_map())
