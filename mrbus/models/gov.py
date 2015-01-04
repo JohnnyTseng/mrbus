@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import re
 import json
 import requests
 from time import time
@@ -9,7 +10,7 @@ from lxml import html
 session = requests.Session()
 session.headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
 
-def _session_get_text(url, referer=None):
+def _session_get_text(url, referer=None, encoding=None):
 
     global session
 
@@ -23,11 +24,36 @@ def _session_get_text(url, referer=None):
 
     last_url = url
 
-    return resp.text
+    if encoding is None:
+        return resp.text
+    else:
+        return resp.content.decode(encoding)
 
 class TaipeiIndex(object):
 
     URL = 'http://e-bus.taipei.gov.tw/'
+
+    def _get_index_text(self):
+        return _session_get_text(
+            self.URL,
+            encoding = 'utf-8'
+        )
+
+    JS_BLOCK_COMMENT_RE = re.compile(ur'/\*.*?\*/', re.S)
+    EBUS_CALL_RE = re.compile(ur'eBus1?(?:_0)?\(".*?","(?P<rid>.+?)","(?P<name>.+?)"\)')
+    EBUS_A_RE = re.compile(ur'''<a href='javascript:openEbus1?\("(?P<rid>.+?)"\)'>(?P<name>.+?)</a>''')
+
+    def get_name_rid_map(self):
+
+        name_rid_map = {}
+
+        text = self.JS_BLOCK_COMMENT_RE.sub('', self._get_index_text())
+        for m in self.EBUS_CALL_RE.finditer(text):
+            name_rid_map[m.group('name')] = m.group('rid')
+        for m in self.EBUS_A_RE.finditer(text):
+            name_rid_map[m.group('name')] = m.group('rid')
+
+        return name_rid_map
 
 class TaipeiRoute(object):
 
@@ -91,6 +117,11 @@ if __name__ == '__main__':
 
     import uniout
     from pprint import pprint
+
+    tpi = TaipeiIndex()
+    pprint(tpi.get_name_rid_map())
+
+    import sys; sys.exit()
 
     tpr1 = TaipeiRoute('10723')
     pprint(tpr1.get_idx_name_map(0))
