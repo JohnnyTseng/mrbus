@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-__all__ = ['TaipeiIndex', 'NewTaipeiIndex', 'TaipeiRoute', 'NewTaipeiRoute']
+__all__ = [
+    'TaipeiRouteIndex', 'NewTaipeiRouteIndex',
+    'TaipeiRoute', 'NewTaipeiRoute'
+]
 
 import re
 import json
@@ -30,7 +33,7 @@ def _fetch_text(url, referer=None, encoding=None):
 
     return resp.text
 
-class _Index(object):
+class _RouteIndex(object):
 
     def __init__(self):
         self._name_rid_map = None
@@ -48,7 +51,7 @@ class _Index(object):
             )
         return self._name_rid_map
 
-class TaipeiIndex(_Index):
+class TaipeiRouteIndex(_RouteIndex):
 
     URL = 'http://e-bus.taipei.gov.tw/'
 
@@ -74,7 +77,7 @@ class TaipeiIndex(_Index):
 
         return name_rid_map
 
-class NewTaipeiIndex(_Index):
+class NewTaipeiRouteIndex(_RouteIndex):
 
     URL = 'http://e-bus.ntpc.gov.tw/'
 
@@ -131,7 +134,7 @@ class _Route(object):
     def _fetch_page_text(self):
         return _fetch_text(
             self._format_page_url(self._rid, self._sec),
-            referer = TaipeiIndex.URL
+            referer = TaipeiRouteIndex.URL
         )
 
     def _fetch_api_text(self):
@@ -219,11 +222,11 @@ if __name__ == '__main__':
     import uniout
     from pprint import pprint
 
-    tpi = TaipeiIndex()
-    pprint(tpi.get_name_rid_map())
+    tpri = TaipeiRouteIndex()
+    pprint(tpri.get_name_rid_map())
 
-    npi = NewTaipeiIndex()
-    pprint(npi.get_name_rid_map())
+    npri = NewTaipeiRouteIndex()
+    pprint(npri.get_name_rid_map())
 
     tpr1 = TaipeiRoute('10723', 0)
     pprint(tpr1.get_idx_name_map())
