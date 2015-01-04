@@ -32,13 +32,27 @@ def _session_get_text(url, referer=None, encoding=None):
 
     return resp.text
 
-class TaipeiIndex(object):
+class _Index(object):
+
+    def __init__(self):
+        self._name_rid_map = None
+
+    def _fetch_name_rid_map(self):
+        raise NotImplemented('_fetch_name_rid_map')
+
+    def get_name_rid_map(self):
+        if self._name_rid_map is None:
+            self._name_rid_map = self._fetch_name_rid_map()
+        return self._name_rid_map
+
+class TaipeiIndex(_Index):
 
     URL = 'http://e-bus.taipei.gov.tw/'
 
-    def _get_index_text(self):
+    @classmethod
+    def _get_index_text(cls):
         return _session_get_text(
-            self.URL,
+            cls.URL,
             encoding = 'utf-8'
         )
 
@@ -46,30 +60,33 @@ class TaipeiIndex(object):
     EBUS_CALL_RE = re.compile(ur'eBus1?(?:_0)?\(".*?","(?P<rid>.+?)","(?P<name>.+?)"\)')
     EBUS_A_RE = re.compile(ur'''<a href='javascript:openEbus1?\("(?P<rid>.+?)"\)'>(?P<name>.+?)</a>''')
 
-    def get_name_rid_map(self):
+    @classmethod
+    def _fetch_name_rid_map(cls):
 
         name_rid_map = {}
 
-        text = self.JS_BLOCK_COMMENT_RE.sub('', self._get_index_text())
-        for m in self.EBUS_CALL_RE.finditer(text):
+        text = cls.JS_BLOCK_COMMENT_RE.sub('', cls._get_index_text())
+        for m in cls.EBUS_CALL_RE.finditer(text):
             name_rid_map[m.group('name')] = m.group('rid')
-        for m in self.EBUS_A_RE.finditer(text):
+        for m in cls.EBUS_A_RE.finditer(text):
             name_rid_map[m.group('name')] = m.group('rid')
 
         return name_rid_map
 
-class NewTaipeiIndex(object):
+class NewTaipeiIndex(_Index):
 
     URL = 'http://e-bus.ntpc.gov.tw/'
 
-    def _get_index_text(self):
-        return _session_get_text(self.URL, encoding='utf-8')
+    @classmethod
+    def _get_index_text(cls):
+        return _session_get_text(cls.URL, encoding='utf-8')
 
-    def get_name_rid_map(self):
+    @classmethod
+    def _fetch_name_rid_map(cls):
 
         name_rid_map = {}
 
-        root = html.fromstring(self._get_index_text())
+        root = html.fromstring(cls._get_index_text())
         for a in root.xpath('//a'):
 
             r = urlparse(a.get('href'))
