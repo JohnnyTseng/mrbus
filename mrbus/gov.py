@@ -3,7 +3,8 @@
 
 __all__ = [
     'get_taipei_route_index', 'get_new_taipei_route_index',
-    'TaipeiRoutePage', 'NewTaipeiRoutePage'
+    'TaipeiRoutePage', 'NewTaipeiRoutePage',
+    'ETA_MESSAGE_MAP'
 ]
 
 import re
@@ -229,6 +230,11 @@ class _RoutePage(object):
             )
         return self._idx_bus_map
 
+    def clear(self):
+        self._idx_name_map = None
+        self._idx_eta_map = None
+        self._idx_bus_map = None
+
 class TaipeiRoutePage(_RoutePage):
 
     _PAGE_URL_TPL = 'http://e-bus.taipei.gov.tw/newmap/Tw/Map?rid={rid}&sec={sec}'
@@ -238,6 +244,11 @@ class NewTaipeiRoutePage(_RoutePage):
 
     _PAGE_URL_TPL = 'http://e-bus.ntpc.gov.tw/NTPCRoute/Tw/Map?rid={rid}&sec={sec}'
     _API_URL_TPL = 'http://e-bus.ntpc.gov.tw/NTPCRoute/Js/RouteInfo?rid={rid}&sec={sec}&_={_}'
+
+ETA_MESSAGE_MAP = {
+    254: u'已過末班',
+    255: u'未發車'
+}
 
 if __name__ == '__main__':
 
