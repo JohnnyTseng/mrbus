@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-__all__ = ['db', 'setup_tables', 'teardown_tables']
+__all__ = ['db', 'create_tables', 'drop_tables']
 
 import psycopg2
 from getpass import getuser
