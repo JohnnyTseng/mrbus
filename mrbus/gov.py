@@ -34,15 +34,20 @@ def _session_get_text(url, referer=None, encoding=None):
 
 class _Index(object):
 
+    @classmethod
+    def _fetch_index_text(cls):
+        raise NotImplementedError('_fetch_index_text')
+
+    @classmethod
+    def _parse_to_name_rid_map(self, text):
+        raise NotImplementedError('_parse_to_name_rid_map')
+
     def __init__(self):
         self._name_rid_map = None
 
-    def _fetch_name_rid_map(self):
-        raise NotImplemented('_fetch_name_rid_map')
-
     def get_name_rid_map(self):
         if self._name_rid_map is None:
-            self._name_rid_map = self._fetch_name_rid_map()
+            self._name_rid_map = self._parse_to_name_rid_map(self._fetch_index_text())
         return self._name_rid_map
 
 class TaipeiIndex(_Index):
@@ -50,7 +55,7 @@ class TaipeiIndex(_Index):
     URL = 'http://e-bus.taipei.gov.tw/'
 
     @classmethod
-    def _get_index_text(cls):
+    def _fetch_index_text(cls):
         return _session_get_text(
             cls.URL,
             encoding = 'utf-8'
@@ -61,14 +66,14 @@ class TaipeiIndex(_Index):
     EBUS_A_RE = re.compile(ur'''<a href='javascript:openEbus1?\("(?P<rid>.+?)"\)'>(?P<name>.+?)</a>''')
 
     @classmethod
-    def _fetch_name_rid_map(cls):
+    def _parse_to_name_rid_map(cls, text):
 
         name_rid_map = {}
 
-        text = cls.JS_BLOCK_COMMENT_RE.sub('', cls._get_index_text())
-        for m in cls.EBUS_CALL_RE.finditer(text):
+        nocomment_text = cls.JS_BLOCK_COMMENT_RE.sub('', text)
+        for m in cls.EBUS_CALL_RE.finditer(nocomment_text):
             name_rid_map[m.group('name')] = m.group('rid')
-        for m in cls.EBUS_A_RE.finditer(text):
+        for m in cls.EBUS_A_RE.finditer(nocomment_text):
             name_rid_map[m.group('name')] = m.group('rid')
 
         return name_rid_map
@@ -78,15 +83,15 @@ class NewTaipeiIndex(_Index):
     URL = 'http://e-bus.ntpc.gov.tw/'
 
     @classmethod
-    def _get_index_text(cls):
+    def _fetch_index_text(cls):
         return _session_get_text(cls.URL, encoding='utf-8')
 
     @classmethod
-    def _fetch_name_rid_map(cls):
+    def _parse_to_name_rid_map(cls, text):
 
         name_rid_map = {}
 
-        root = html.fromstring(cls._get_index_text())
+        root = html.fromstring(text)
         for a in root.xpath('//a'):
 
             r = urlparse(a.get('href'))
@@ -121,21 +126,24 @@ class _Route(object):
         return cls.API_URL_TPL.format(rid=rid, sec=sec, _=int(time()*1000))
 
     def __init__(self, rid):
-        self.rid = rid
+        self._rid = rid
+        self._idx_name_map = None
+        self._idx_eta_map = None
+        self._idx_bus_map = None
 
     def _get_page_text(self, sec):
         return _session_get_text(
-            self._format_page_url(self.rid, sec),
+            self._format_page_url(self._rid, sec),
             referer = TaipeiIndex.URL
         )
 
     def _get_api_text(self, sec):
         return _session_get_text(
-            self._format_api_url(self.rid, sec),
-            referer = self._format_page_url(self.rid, sec),
+            self._format_api_url(self._rid, sec),
+            referer = self._format_page_url(self._rid, sec),
         )
 
-    def get_idx_name_map(self, sec):
+    def fetch_idx_name_map(self, sec):
 
         idx_name_map = {}
 
@@ -147,7 +155,7 @@ class _Route(object):
 
         return idx_name_map
 
-    def get_idx_eta_map(self, sec):
+    def fetch_idx_eta_map(self, sec):
 
         # TODO: get the plate number
         #
