@@ -55,10 +55,11 @@ def create_tables():
             create table interval (
                 route_id     text references route (id),
                 stop_id      int  references stop (id),
+                it_is_return bool,
                 interval_min smallint,
                 updated_ts   timestamp,
                 created_ts   timestamp,
-                primary key (route_id, stop_id)
+                primary key (route_id, stop_id, it_is_return)
             )
         ''')
 
