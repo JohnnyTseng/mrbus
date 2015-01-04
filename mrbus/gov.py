@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __all__ = [
-    'TaipeiRouteIndex', 'NewTaipeiRouteIndex',
+    'get_taipei_route_index', 'get_new_taipei_route_index',
     'TaipeiRoute', 'NewTaipeiRoute'
 ]
 
@@ -51,7 +51,7 @@ class _RouteIndex(object):
             )
         return self._name_rid_map
 
-class TaipeiRouteIndex(_RouteIndex):
+class _TaipeiRouteIndex(_RouteIndex):
 
     URL = 'http://e-bus.taipei.gov.tw/'
 
@@ -77,7 +77,7 @@ class TaipeiRouteIndex(_RouteIndex):
 
         return name_rid_map
 
-class NewTaipeiRouteIndex(_RouteIndex):
+class _NewTaipeiRouteIndex(_RouteIndex):
 
     URL = 'http://e-bus.ntpc.gov.tw/'
 
@@ -99,6 +99,28 @@ class NewTaipeiRouteIndex(_RouteIndex):
                     name_rid_map[a.text] = d['rid'][0]
 
         return name_rid_map
+
+_tpri = None
+
+def get_taipei_route_index():
+
+    global _tpri
+
+    if _tpri is None:
+        _tpri = _TaipeiRouteIndex()
+
+    return _tpri
+
+_ntri = None
+
+def get_new_taipei_route_index():
+
+    global _ntri
+
+    if _ntri is None:
+        _ntri = _NewTaipeiRouteIndex()
+
+    return _ntri
 
 class _Route(object):
 
