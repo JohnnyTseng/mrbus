@@ -6,7 +6,7 @@ from mrbus.exc import *
 from mrbus.pool import Pool, do
 from mrbus.conn import db
 
-def get_route_id(route_name):
+def _get_route_id(route_name):
 
     # NOTE: the route id here is different from rid in gov
 
@@ -47,7 +47,7 @@ class Route(dict):
     @classmethod
     def init_by_name(self, name):
 
-        route_id = get_route_id(name)
+        route_id = _get_route_id(name)
         if route_id is None:
             raise RouteNameError(name)
 
