@@ -127,7 +127,7 @@ def merge_routes_on_route_indexes():
 
     debug('Took {:.3f}s.'.format(time()-start_ts))
 
-def create_route_page_pair(route_id):
+def _create_route_page_pair(route_id):
 
     # rc : region code
     # rid: the route page's rid
@@ -148,7 +148,7 @@ def create_route_page_pair(route_id):
         route_page_class(rid, 1)
     )
 
-def query_route_ids_it(chunk_size=100):
+def _query_route_ids_it(chunk_size=100):
 
     offset = 0
 
@@ -185,12 +185,12 @@ if __name__ == '__main__':
     import uniout
     from pprint import pprint
 
-    for rids in query_route_ids_it():
+    for rids in _query_route_ids_it():
         print len(rids)
 
     import sys; sys.exit()
 
-    rids_it = query_route_ids_it(3)
+    rids_it = _query_route_ids_it(3)
     print next(rids_it)
     print next(rids_it)
 
@@ -200,5 +200,5 @@ if __name__ == '__main__':
 
     import sys; sys.exit()
 
-    rp0, rp1 = create_route_page_pair('tp_10723')
+    rp0, rp1 = _create_route_page_pair('tp_10723')
     pprint(rp0.get_idx_eta_map())
