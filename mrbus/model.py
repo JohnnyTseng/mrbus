@@ -332,10 +332,43 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
                 )
             ''', to_insert_pds)
 
+def merge_stops_on_all_route_pages():
+
+    global _pool
+
+    #for rids in _query_route_ids_it():
+    # TODO: debugging
+    for rids in _query_route_ids_it(3):
+
+        # rpagep: route page pair
+        rid_rpagep_map = {}
+
+        for rid in rids:
+
+            rpagep = _create_route_page_pair(rid)
+            rid_rpagep_map[rid] = rpagep
+
+            # fetch pages asyncly
+            for rpage in rpagep:
+                _pool.apply_async(rpage.get_idx_name_map)
+                _pool.apply_async(rpage.get_idx_eta_map)
+
+        # wait fetching pages
+        _pool.join()
+
+        # TODO: debugging
+        for rid in rids:
+            _merge_stops_on_route_page_pair(rid, rid_rpagep_map[rid])
+
 if __name__ == '__main__':
 
     import uniout
     from pprint import pprint
+
+    # TODO: fix nt_123
+    merge_stops_on_all_route_pages()
+
+    import sys; sys.exit()
 
     rid = 'tp_10723'
     rpp = _create_route_page_pair(rid)
