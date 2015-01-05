@@ -268,8 +268,6 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
                 'it_is_return': it_is_return,
                 'waiting_min' : waiting_min,
                 'interval_min': None,
-                'updated_ts'  : now_dt,
-                'created_ts'  : now_dt,
             }
 
             serial_no += 1
@@ -289,13 +287,19 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
         ''', (tuple(pks), ))
         existent_pk_set = set(cur)
 
+        now_dt = get_now_dt()
         to_update_pds = []
         to_insert_pds = []
         for pk in pks:
             if pk in existent_pk_set:
-                to_update_pds.append(pk_pd_map[pk])
+                pd = pk_pd_map[pk]
+                pd['updated_ts'] = now_dt
+                to_update_pds.append(pd)
             else:
-                to_insert_pds.append(pk_pd_map[pk])
+                pd = pk_pd_map[pk]
+                pd['updated_ts'] = now_dt
+                pd['created_ts'] = now_dt
+                to_insert_pds.append(pd)
 
         debug('len(to_update_pds) = {!r}'.format(len(to_update_pds)))
         debug('len(to_insert_pds) = {!r}'.format(len(to_insert_pds)))
