@@ -262,7 +262,6 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
 
             pks.append(pk)
             pk_pd_map[pk] = {
-                'pk'          : pk,
                 'route_id'    : route_id,
                 'stop_id'     : stop_id,
                 'serial_no'   : serial_no,
@@ -311,7 +310,8 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
                     interval_min = %(interval_min)s,
                     updated_ts   = %(updated_ts)s
                 where
-                    (route_id, stop_id, serial_no) = %(pk)s
+                    (route_id, stop_id, serial_no) =
+                        (%(route_id)s, %(stop_id)s, %(serial_no)s)
             ''', to_update_pds)
 
         if to_insert_pds:
@@ -381,6 +381,12 @@ if __name__ == '__main__':
 
     import uniout
     from pprint import pprint
+
+    rid = 'tp_10723'
+    rpp = _create_route_page_pair(rid)
+    _merge_stops_on_route_page_pair(rid, rpp)
+
+    import sys; sys.exit()
 
     merge_stops_on_all_route_pages()
 
