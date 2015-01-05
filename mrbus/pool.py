@@ -43,6 +43,9 @@ class Pool(object):
         self._next_no += 1
         return no
 
+    def join(self):
+        self._task_que.join()
+
     def map(self, func, iterable):
 
         # dispatch tasks
@@ -54,7 +57,7 @@ class Pool(object):
                 item
             ))
 
-        self._task_que.join()
+        self.join()
 
         # collect the results
 
