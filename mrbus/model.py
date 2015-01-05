@@ -340,9 +340,7 @@ def merge_stops_on_all_route_pages():
 
     global _pool
 
-    #for rids in _query_route_ids_it():
-    # TODO: debugging
-    for rids in _query_route_ids_it(3):
+    for rids in _query_route_ids_it():
 
         # rpagep: route page pair
         rid_rpagep_map = {}
@@ -357,10 +355,10 @@ def merge_stops_on_all_route_pages():
                 _pool.apply_async(rpage.get_idx_name_map)
                 _pool.apply_async(rpage.get_idx_eta_map)
 
-        # wait fetching pages
+        # wait for fetching pages
         _pool.join()
 
-        # TODO: debugging
+        # merge this route's stops
         for rid in rids:
             _merge_stops_on_route_page_pair(rid, rid_rpagep_map[rid])
 
