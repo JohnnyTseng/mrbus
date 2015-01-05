@@ -67,7 +67,10 @@ def merge_routes_on_route_indexes():
         cur.execute(update(
             'route',
             where = {'id': to_mark_on_index_false_rids},
-            set   = {'on_index': False}
+            set   = {
+                'on_index'  : False,
+                'updated_ts': get_now_dt()
+            }
         ))
 
     with db as cur:
