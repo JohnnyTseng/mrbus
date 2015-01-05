@@ -227,6 +227,108 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
 
             sname_sid_map.update(cur)
 
+    # then merge phi
+
+    # pk: phi primary key: (route_id, stop_id, serial_no)
+    pks = []
+    # pd: phi dict
+    pk_pd_map = {}
+
+    it_is_return = False
+    for rpage in route_page_pair:
+
+        idx_sname_map = rpage.get_idx_name_map()
+        idx_eta_map = rpage.get_idx_eta_map()
+
+        idxs = idx_sname_map.keys()
+        idxs.sort()
+
+        for serial_no, idx in enumerate(idxs):
+
+            eta = idx_eta_map[idx]
+
+            stop_id = sname_sid_map[idx_sname_map[idx]]
+            waiting_min = eta if eta not in (254, 255) else None
+
+            pk = (route_id, stop_id, serial_no)
+
+            pks.append(pk)
+            pk_pd_map[pk] = {
+                'pk'          : pk,
+                'route_id'    : route_id,
+                'stop_id'     : stop_id,
+                'serial_no'   : serial_no,
+                'it_is_return': it_is_return,
+                'waiting_min' : waiting_min,
+                'interval_min': None,
+                'updated_ts'  : now_dt,
+                'created_ts'  : now_dt,
+            }
+
+        it_is_return = not it_is_return
+
+    with db as cur:
+
+        cur.execute('''
+            select
+                route_id, stop_id, serial_no
+            from
+                phi
+            where
+                (route_id, stop_id, serial_no) in %s
+            for update
+        ''', (tuple(pks), ))
+        existent_pk_set = set(cur)
+
+        to_update_pds = []
+        to_insert_pds = []
+        for pk in pks:
+            if pk in existent_pk_set:
+                to_update_pds.append(pk_pd_map[pk])
+            else:
+                to_insert_pds.append(pk_pd_map[pk])
+
+        debug('len(to_update_pds) = {!r}'.format(len(to_update_pds)))
+        debug('len(to_insert_pds) = {!r}'.format(len(to_insert_pds)))
+
+        if to_update_pds:
+            cur.executemany('''
+                update
+                    phi
+                set
+                    it_is_return = %(it_is_return)s,
+                    waiting_min  = %(waiting_min)s,
+                    interval_min = %(interval_min)s,
+                    updated_ts   = %(updated_ts)s
+                where
+                    (route_id, stop_id, serial_no) = %(pk)s
+            ''', to_update_pds)
+
+        if to_insert_pds:
+            cur.executemany('''
+                insert into
+                    phi (
+                        route_id,
+                        stop_id,
+                        serial_no,
+                        it_is_return,
+                        waiting_min,
+                        interval_min,
+                        updated_ts,
+                        created_ts
+                    )
+                values (
+                    %(route_id)s,
+                    %(stop_id)s,
+                    %(serial_no)s,
+                    %(it_is_return)s,
+                    %(waiting_min)s,
+                    %(interval_min)s,
+                    %(updated_ts)s,
+                    %(created_ts)s
+                )
+            ''', to_insert_pds)
+
 if __name__ == '__main__':
 
     import uniout
