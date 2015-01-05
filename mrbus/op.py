@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from mrbus.conn import db
+from mrbus.model import merge_routes_on_route_indexes
 
 def create_tables():
 
