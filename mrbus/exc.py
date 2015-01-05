@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-class RouteIDError(KeyError):
+class RouteIDError(ValueError):
     pass
 
-class RouteNameError(KeyError):
+class RouteNameError(ValueError):
     pass
