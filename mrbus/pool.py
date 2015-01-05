@@ -46,6 +46,16 @@ class Pool(object):
     def join(self):
         self._task_que.join()
 
+    def apply_async(self, func, args=None, kwds=None):
+
+        # here is no multiprocessing.pool.AsyncResult
+        self._task_que.put((
+            -1,
+            func,
+            args,
+            kwds
+        ))
+
     def map(self, func, iterable):
 
         # dispatch tasks
@@ -81,4 +91,12 @@ if __name__ == '__main__':
         return n
 
     pool = Pool()
+
+    for i in range(9):
+        pool.apply_async(do_task, (i, ))
+
+    pool.join()
+
+    import sys; sys.exit()
+
     print pool.map(do_task, range(9))
