@@ -161,30 +161,30 @@ class _RoutePage(object):
 
         return idx_name_map
 
-    def _transform_to_idx_eta_map(self, d):
+    def _transform_to_idx_eta_map(self, api_d):
 
         # eta -> 255 means 未發車
         # eta -> 254 means 末班車已過
 
         return {
             d['idx']: d['eta']
-            for d in d['Etas']
+            for d in api_d['Etas']
         }
 
-    def _transform_to_idx_bus_map(self, d):
+    def _transform_to_idx_bus_map(self, api_d):
 
         # TODO: what is fl and io?
 
         return {
             d['idx']: d
-            for d in d['Buses']
+            for d in api_d['Buses']
         }
 
-    def _parse_api_text(self, api_text):
-        d = json.loads(api_text)
+    def _parse_to_map_pair(self, api_text):
+        api_d = json.loads(api_text)
         return (
-            self._transform_to_idx_eta_map(d),
-            self._transform_to_idx_bus_map(d)
+            self._transform_to_idx_eta_map(api_d),
+            self._transform_to_idx_bus_map(api_d)
         )
 
     def get_idx_name_map(self):
@@ -196,14 +196,14 @@ class _RoutePage(object):
 
     def get_idx_eta_map(self):
         if self._idx_eta_map is None:
-            self._idx_eta_map, self._idx_bus_map = self._parse_api_text(
+            self._idx_eta_map, self._idx_bus_map = self._parse_to_map_pair(
                 self._fetch_api_text()
             )
         return self._idx_eta_map
 
     def get_idx_bus_map(self):
         if self._idx_bus_map is None:
-            self._idx_eta_map, self._idx_bus_map = self._parse_api_text(
+            self._idx_eta_map, self._idx_bus_map = self._parse_to_map_pair(
                 self._fetch_api_text()
             )
         return self._idx_bus_map
