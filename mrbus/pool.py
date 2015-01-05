@@ -20,7 +20,12 @@ class _Worker(Thread):
 
         while True:
             no, func, args, argd = self._task_que.get()
-            retval = func(*(args or ()), **(argd or {}))
+
+            try:
+                retval = func(*(args or ()), **(argd or {}))
+            except BaseException as e:
+                retval = e
+
             self._task_que.task_done()
             self._result_que.put((no, retval))
 
@@ -74,9 +79,10 @@ class Pool(object):
 
         no_result_pairs = []
         while not self._result_que.empty():
-            no_result_pairs.append(
-                self._result_que.get_nowait()
-            )
+            no, retval = self._result_que.get_nowait()
+            if isinstance(retval, BaseException):
+                raise retval
+            no_result_pairs.append((no, retval))
 
         no_result_pairs.sort()
 
@@ -90,7 +96,14 @@ if __name__ == '__main__':
         sleep(0.1)
         return n
 
+    def make_exc(n):
+        [][0]
+
     pool = Pool()
+
+    print pool.map(make_exc, range(9))
+
+    import sys; sys.exit()
 
     for i in range(9):
         pool.apply_async(do_task, (i, ))
