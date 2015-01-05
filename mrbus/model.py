@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from time import time, sleep
-from mosql.query import select
+from mosql.query import select, update
 from mrbus.util import debug, get_now_dt
 from mrbus.pool import Pool
 from mrbus.gov import *
@@ -49,6 +49,26 @@ def merge_routes_on_route_indexes():
             }
 
     # merge into db
+
+    with db as cur:
+
+        cur.execute(select(
+            'route',
+            where   = {'id not in': rid_rd_map},
+            columns = ('id', ),
+            for_    = 'update'
+        ))
+
+        to_mark_on_index_false_rids = tuple(rid for rid, in cur)
+        debug('len(to_mark_on_index_false_rids) = {!r}'.format(
+            len(to_mark_on_index_false_rids)
+        ))
+
+        cur.execute(update(
+            'route',
+            where = {'id': to_mark_on_index_false_rids},
+            set   = {'on_index': False}
+        ))
 
     with db as cur:
 
@@ -133,9 +153,9 @@ if __name__ == '__main__':
     import uniout
     from pprint import pprint
 
-    rp0, rp1 = create_route_page_pair('tp_10723')
-    pprint(rp0.get_idx_eta_map())
+    merge_routes_on_route_indexes()
 
     import sys; sys.exit()
 
-    merge_routes_on_route_indexes()
+    rp0, rp1 = create_route_page_pair('tp_10723')
+    pprint(rp0.get_idx_eta_map())

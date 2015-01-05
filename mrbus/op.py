@@ -10,8 +10,9 @@ def create_tables():
     #
     # 1. id -> tp_10723 / nt_114
     # 2. name
-    # 3. updated_ts
-    # 4. created_ts
+    # 3. on_index
+    # 4. updated_ts
+    # 5. created_ts
     #
 
     # stop
@@ -44,12 +45,14 @@ def create_tables():
             create table route (
                 id         text primary key,
                 name       text,
+                on_index   bool default true,
                 updated_ts timestamp,
                 created_ts timestamp
             )
         ''')
 
         cur.execute('create index on route (name)')
+        cur.execute('create index on route (on_index)')
 
         # stop
 
