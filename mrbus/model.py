@@ -17,6 +17,7 @@ def merge_routes_on_route_indexes():
     # set up
 
     # rc: region code (Taipei -> tp; NewTaipei -> nt)
+    # ri: route index
     rc_ri_pairs = [
         ('tp', TaipeiRouteIndex()),
         ('nt', NewTaipeiRouteIndex())
