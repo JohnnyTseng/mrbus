@@ -3,6 +3,9 @@
 
 from datetime import datetime
 
+def do(f):
+    return f()
+
 def get_now_dt():
     return datetime.now()
 
