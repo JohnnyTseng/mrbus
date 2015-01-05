@@ -19,8 +19,7 @@ def create_tables():
     #
     # 1. id (serial)
     # 2. name
-    # 3. updated_ts
-    # 4. created_ts
+    # 3. created_ts
     #
 
     # interval
@@ -60,7 +59,6 @@ def create_tables():
             create table stop (
                 id         serial primary key,
                 name       text,
-                updated_ts timestamp,
                 created_ts timestamp
             )
         ''')
