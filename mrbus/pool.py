@@ -19,8 +19,8 @@ class _Worker(Thread):
     def run(self):
 
         while True:
-            no, func, arg = self._task_que.get()
-            retval = func(arg)
+            no, func, args, argd = self._task_que.get()
+            retval = func(*(args or ()), **(argd or {}))
             self._task_que.task_done()
             self._result_que.put((no, retval))
 
@@ -54,7 +54,8 @@ class Pool(object):
             self._task_que.put((
                 self._get_next_no(),
                 func,
-                item
+                (item, ),
+                None
             ))
 
         self.join()
