@@ -77,7 +77,7 @@ if __name__ == '__main__':
     from time import sleep
 
     def do_task(n):
-        sleep(1)
+        sleep(0.1)
         return n
 
     pool = Pool()
