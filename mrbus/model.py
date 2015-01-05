@@ -105,7 +105,7 @@ def merge_routes_on_route_indexes():
                     (%(id)s, %(name)s, %(updated_ts)s, %(created_ts)s)
             ''', to_insert_rds)
 
-        debug('Took {:.3f}s.'.format(time()-start_ts))
+    debug('Took {:.3f}s.'.format(time()-start_ts))
 
 def create_route_page_pair(route_id):
 
