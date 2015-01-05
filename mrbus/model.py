@@ -180,10 +180,63 @@ def _query_route_ids_it(chunk_size=100):
 
         offset += chunk_size
 
+def _merge_stops_on_route_page_pair(route_id, route_page_pair):
+
+    # merge stops first
+
+    sname_set = set()
+    for rpage in route_page_pair:
+        sname_set.update(rpage.get_idx_name_map().itervalues())
+
+    with db as cur:
+        cur.execute(select(
+            'stop',
+            where   = {'name': sname_set},
+            columns = ('name', 'id')
+        ))
+        sname_sid_map = dict(cur)
+
+    now_dt = get_now_dt()
+    # sds: stop dicts
+    to_insert_sds = []
+    for sname in sname_set:
+        if sname not in sname_sid_map:
+            to_insert_sds.append({
+                'name'     : sname,
+                'created_ts': now_dt
+            })
+
+    debug('len(to_insert_sds) = {!r}'.format(len(to_insert_sds)))
+
+    if to_insert_sds:
+
+        with db as cur:
+
+            cur.executemany('''
+                insert into
+                    stop (name, created_ts)
+                values
+                    (%(name)s, %(created_ts)s)
+            ''', to_insert_sds)
+
+            cur.execute(select(
+                'stop',
+                where   = {'name': (sd['name'] for sd in to_insert_sds)},
+                columns = ('name', 'id')
+            ))
+
+            sname_sid_map.update(cur)
+
 if __name__ == '__main__':
 
     import uniout
     from pprint import pprint
+
+    rid = 'tp_10723'
+    rpp = _create_route_page_pair(rid)
+    _merge_stops_on_route_page_pair(rid, rpp)
+
+    import sys; sys.exit()
 
     for rids in _query_route_ids_it():
         print len(rids)
