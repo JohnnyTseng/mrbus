@@ -239,7 +239,11 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
     for rpage in route_page_pair:
 
         idx_sname_map = rpage.get_idx_name_map()
-        idx_eta_map = rpage.get_idx_eta_map()
+        try:
+            idx_eta_map = rpage.get_idx_eta_map()
+        except ValueError:
+            # ValueError: No JSON object could be decoded
+            continue
 
         idxs = idx_sname_map.keys()
         idxs.sort()
@@ -365,7 +369,6 @@ if __name__ == '__main__':
     import uniout
     from pprint import pprint
 
-    # TODO: fix nt_123
     merge_stops_on_all_route_pages()
 
     import sys; sys.exit()
