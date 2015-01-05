@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from time import sleep
+from time import time, sleep
 from mosql.query import select
 from mrbus.util import debug, get_now_dt
 from mrbus.pool import Pool
@@ -11,6 +11,8 @@ from mrbus.conn import db
 _pool = Pool()
 
 def merge_routes_on_route_indexes():
+
+    start_ts = time()
 
     # set up
 
@@ -29,6 +31,8 @@ def merge_routes_on_route_indexes():
         _pool.apply_async(ri.get_name_rid_map)
 
     _pool.join()
+
+    debug('Took {:.3f}s on networking.'.format(time()-start_ts))
 
     # transform
 
@@ -100,6 +104,8 @@ def merge_routes_on_route_indexes():
                 values
                     (%(id)s, %(name)s, %(updated_ts)s, %(created_ts)s)
             ''', to_insert_rds)
+
+        debug('Took {:.3f}s.'.format(time()-start_ts))
 
 if __name__ == '__main__':
 
