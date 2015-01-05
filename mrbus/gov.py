@@ -13,6 +13,7 @@ import requests
 from time import time
 from urlparse import urlparse, parse_qs
 from lxml import html
+from mrbus.util import debug
 
 _HEADERS = {
     'Referer': 'https://www.google.com/',
@@ -25,6 +26,8 @@ def _fetch_text(url, referer=None, encoding=None):
     if referer is not None:
         headers = _HEADERS.copy()
         headers['Referer'] = referer
+
+    debug('GET {}'.format(url))
 
     resp = requests.get(url, headers=headers)
     resp.raise_for_status()
