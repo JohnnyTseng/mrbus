@@ -107,9 +107,35 @@ def merge_routes_on_route_indexes():
 
         debug('Took {:.3f}s.'.format(time()-start_ts))
 
+def create_route_page_pair(route_id):
+
+    # rc : region code
+    # rid: the route page's rid
+    rc, _, rid = route_id.partition('_')
+
+    route_page_class = None
+
+    if rc == 'tp':
+        route_page_class = TaipeiRoutePage
+    elif rc == 'nt':
+        route_page_class = NewTaipeiRoutePage
+
+    if route_page_class is None:
+        raise RouteIDError('bad region code: {!r}'.format(rc))
+
+    return (
+        route_page_class(rid, 0),
+        route_page_class(rid, 1)
+    )
+
 if __name__ == '__main__':
 
     import uniout
     from pprint import pprint
+
+    rp0, rp1 = create_route_page_pair('tp_10723')
+    pprint(rp0.get_idx_eta_map())
+
+    import sys; sys.exit()
 
     merge_routes_on_route_indexes()
