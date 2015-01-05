@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __all__ = [
-    'get_taipei_route_index', 'get_new_taipei_route_index',
+    'TaipeiRouteIndex', 'NewTaipeiRouteIndex',
     'TaipeiRoutePage', 'NewTaipeiRoutePage',
     'ETA_MESSAGE_MAP'
 ]
@@ -52,7 +52,7 @@ class _RouteIndex(object):
             )
         return self._name_rid_map
 
-class _TaipeiRouteIndex(_RouteIndex):
+class TaipeiRouteIndex(_RouteIndex):
 
     URL = 'http://e-bus.taipei.gov.tw/'
 
@@ -78,7 +78,7 @@ class _TaipeiRouteIndex(_RouteIndex):
 
         return name_rid_map
 
-class _NewTaipeiRouteIndex(_RouteIndex):
+class NewTaipeiRouteIndex(_RouteIndex):
 
     URL = 'http://e-bus.ntpc.gov.tw/'
 
@@ -100,28 +100,6 @@ class _NewTaipeiRouteIndex(_RouteIndex):
                     name_rid_map[a.text] = d['rid'][0]
 
         return name_rid_map
-
-_tpri = None
-
-def get_taipei_route_index():
-
-    global _tpri
-
-    if _tpri is None:
-        _tpri = _TaipeiRouteIndex()
-
-    return _tpri
-
-_ntri = None
-
-def get_new_taipei_route_index():
-
-    global _ntri
-
-    if _ntri is None:
-        _ntri = _NewTaipeiRouteIndex()
-
-    return _ntri
 
 class _RoutePage(object):
 
@@ -157,7 +135,7 @@ class _RoutePage(object):
     def _fetch_page_text(self):
         return _fetch_text(
             self._format_page_url(self._rid, self._sec),
-            referer = _TaipeiRouteIndex.URL
+            referer = TaipeiRouteIndex.URL
         )
 
     def _fetch_api_text(self):
@@ -255,10 +233,10 @@ if __name__ == '__main__':
     import uniout
     from pprint import pprint
 
-    tpri = get_taipei_route_index()
+    tpri = TaipeiRouteIndex()
     pprint(tpri.get_name_rid_map())
 
-    npri = get_new_taipei_route_index()
+    npri = NewTaipeiRouteIndex()
     pprint(npri.get_name_rid_map())
 
     tpr1 = TaipeiRoutePage('10723', 0)
