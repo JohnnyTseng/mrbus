@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from time import time, sleep
-from mosql.query import select, update
+from time import time
+from mosql.query import select
 from mrbus.util import debug, get_now_dt
 from mrbus.pool import Pool
 from mrbus.gov import *
