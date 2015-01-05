@@ -148,10 +148,53 @@ def create_route_page_pair(route_id):
         route_page_class(rid, 1)
     )
 
+def query_route_ids_it(chunk_size=100):
+
+    offset = 0
+
+    while True:
+
+        with db as cur:
+
+            cur.execute('''
+                select
+                    id
+                from
+                    route
+                where
+                    on_index = true
+                order by
+                    created_ts,
+                    id
+                limit
+                    %s
+                offset
+                    %s
+            ''', (chunk_size, offset))
+
+            route_ids = [route_id for route_id, in cur]
+            if not route_ids:
+                break
+
+            yield route_ids
+
+        offset += chunk_size
+
 if __name__ == '__main__':
 
     import uniout
     from pprint import pprint
+
+    for rids in query_route_ids_it():
+        print len(rids)
+
+    import sys; sys.exit()
+
+    rids_it = query_route_ids_it(3)
+    print next(rids_it)
+    print next(rids_it)
+
+    import sys; sys.exit()
 
     merge_routes_on_route_indexes()
 
