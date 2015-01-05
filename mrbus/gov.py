@@ -208,11 +208,6 @@ class _RoutePage(object):
             )
         return self._idx_bus_map
 
-    def clear_cache(self):
-        self._idx_name_map = None
-        self._idx_eta_map = None
-        self._idx_bus_map = None
-
 class TaipeiRoutePage(_RoutePage):
 
     _PAGE_URL_TPL = 'http://e-bus.taipei.gov.tw/newmap/Tw/Map?rid={rid}&sec={sec}'
