@@ -339,10 +339,13 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
 def merge_stops_on_all_route_pages():
 
     start_ts = time()
+    networking_sec = 0
 
     global _pool
 
     for rids in _query_route_ids_it():
+
+        networing_start_ts = time()
 
         # rpagep: route page pair
         rid_rpagep_map = {}
@@ -360,10 +363,13 @@ def merge_stops_on_all_route_pages():
         # wait for fetching pages
         _pool.join()
 
+        networking_sec += time()-networing_start_ts
+
         # merge this route's stops
         for rid in rids:
             _merge_stops_on_route_page_pair(rid, rid_rpagep_map[rid])
 
+    debug('Took {:.3f}s on networking.'.format(networking_sec))
     debug('Took {:.3f}s.'.format(time()-start_ts))
 
 if __name__ == '__main__':
