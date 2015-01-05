@@ -19,6 +19,7 @@ class _Worker(Thread):
     def run(self):
 
         while True:
+
             no, func, args, argd = self._task_que.get()
 
             try:
@@ -27,7 +28,9 @@ class _Worker(Thread):
                 retval = e
 
             self._task_que.task_done()
-            self._result_que.put((no, retval))
+
+            if no is not None:
+                self._result_que.put((no, retval))
 
 class Pool(object):
 
@@ -55,7 +58,7 @@ class Pool(object):
 
         # here is no multiprocessing.pool.AsyncResult
         self._task_que.put((
-            -1,
+            None,
             func,
             args,
             kwds
