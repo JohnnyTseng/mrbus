@@ -234,6 +234,7 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
     # pd: phi dict
     pk_pd_map = {}
 
+    serial_no = 0
     it_is_return = False
     for rpage in route_page_pair:
 
@@ -243,7 +244,7 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
         idxs = idx_sname_map.keys()
         idxs.sort()
 
-        for serial_no, idx in enumerate(idxs):
+        for idx in idxs:
 
             eta = idx_eta_map[idx]
 
@@ -264,6 +265,8 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
                 'updated_ts'  : now_dt,
                 'created_ts'  : now_dt,
             }
+
+            serial_no += 1
 
         it_is_return = not it_is_return
 
