@@ -371,6 +371,8 @@ def merge_stops_on_all_route_pages():
 
     debug('Took {:.3f}s on networking.'.format(networking_sec))
     debug('Took {:.3f}s.'.format(time()-start_ts))
+    # debug: merge_stops_on_all_route_pages: Took 110.586s on networking.
+    # debug: merge_stops_on_all_route_pages: Took 133.775s.
 
 if __name__ == '__main__':
 
