@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# a thread-based and simpler version of multiprocessing.Pool
+# ref: https://docs.python.org/2/library/multiprocessing.html#module-multiprocessing.pool
+
 from threading import Thread
 from Queue import Queue
 
