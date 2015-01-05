@@ -10,7 +10,7 @@ from mrbus.conn import db
 
 _pool = Pool()
 
-def merge_gov_route_indexes():
+def merge_routes_on_route_indexes():
 
     # set up
 
@@ -106,4 +106,4 @@ if __name__ == '__main__':
     import uniout
     from pprint import pprint
 
-    merge_gov_route_indexes()
+    merge_routes_on_route_indexes()
