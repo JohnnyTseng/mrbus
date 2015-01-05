@@ -11,12 +11,11 @@ def create_tables():
     # 2. name
     # 3. updated_ts
     # 4. created_ts
-    # 5. json
     #
 
     # stop
     #
-    # 1. id
+    # 1. id (serial)
     # 2. name
     # 3. updated_ts
     # 4. created_ts
@@ -31,7 +30,14 @@ def create_tables():
     # 5. created_ts
     #
 
+    # serial  : 1 to 2147483647
+    # smallint: -32768 to +32767
+    # int     : -2147483648 to +2147483647
+    # ref: http://www.postgresql.org/docs/9.1/static/datatype-numeric.html
+
     with db as cur:
+
+        # route
 
         cur.execute('''
             create table route (
@@ -42,35 +48,45 @@ def create_tables():
             )
         ''')
 
+        cur.execute('create index on route (name)')
+
+        # stop
+
         cur.execute('''
             create table stop (
-                id         text primary key,
+                id         serial primary key,
                 name       text,
                 updated_ts timestamp,
                 created_ts timestamp
             )
         ''')
 
+        cur.execute('create index on stop (name)')
+
+        # phi (Φ)
+        # because the alphabet looks like a route (|) corsses over a stop (o),
+        # lol.
+
         cur.execute('''
-            create table interval (
+            create table phi (
                 route_id     text references route (id),
-                stop_id      text references stop (id),
+                stop_id      int references stop (id),
+                serial_no    smallint,
                 it_is_return bool,
+                waiting_min  smallint,
                 interval_min smallint,
                 updated_ts   timestamp,
                 created_ts   timestamp,
-                primary key (route_id, stop_id, it_is_return)
+                primary key (route_id, stop_id, serial_no)
             )
         ''')
 
-        cur.execute('''
-            create index on interval (stop_id)
-        ''')
+        cur.execute('create index on phi (stop_id)')
 
 def drop_tables():
 
     with db as cur:
-        cur.execute('drop table interval')
+        cur.execute('drop table phi')
         cur.execute('drop table stop')
         cur.execute('drop table route')
 
