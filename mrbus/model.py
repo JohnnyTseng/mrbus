@@ -16,8 +16,6 @@ def merge_routes_on_route_indexes():
 
     # set up
 
-    global _pool
-
     # rc: region code (Taipei -> tp; NewTaipei -> nt)
     rc_ri_pairs = [
         ('tp', TaipeiRouteIndex()),
@@ -347,8 +345,6 @@ def merge_stops_on_all_route_pages():
 
     start_ts = time()
     networking_sec = 0
-
-    global _pool
 
     for rids in _query_route_ids_it():
 
