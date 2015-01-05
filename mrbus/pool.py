@@ -36,7 +36,7 @@ class Pool(object):
 
     # NOTE: not thread-safe
 
-    def __init__(self, n=3):
+    def __init__(self, n=6):
 
         self._task_que = Queue()
         self._result_que = Queue()
