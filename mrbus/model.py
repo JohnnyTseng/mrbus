@@ -383,7 +383,7 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
                 )
             ''', to_insert_pds)
 
-def merge_stops_on_all_route_pages():
+def merge_stops_of_all_routes():
 
     start_ts = time()
     networking_sec = 0
@@ -416,10 +416,10 @@ def merge_stops_on_all_route_pages():
 
     debug('Took {:.3f}s on networking.'.format(networking_sec))
     debug('Took {:.3f}s.'.format(time()-start_ts))
-    # debug: merge_stops_on_all_route_pages: Took 110.586s on networking.
-    # debug: merge_stops_on_all_route_pages: Took 133.775s.
+    # debug: merge_stops_of_all_routes: Took 110.586s on networking.
+    # debug: merge_stops_of_all_routes: Took 133.775s.
 
-def merge_stops(route_id):
+def merge_stops_of_route(route_id):
 
     start_ts = time()
 
@@ -444,7 +444,7 @@ if __name__ == '__main__':
     import uniout
     from pprint import pprint
 
-    merge_stops('tp_10723')
+    merge_stops_of_route('tp_10723')
 
     import sys; sys.exit()
 
@@ -454,7 +454,7 @@ if __name__ == '__main__':
 
     import sys; sys.exit()
 
-    merge_stops_on_all_route_pages()
+    merge_stops_of_all_routes()
 
     import sys; sys.exit()
 
