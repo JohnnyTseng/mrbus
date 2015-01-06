@@ -428,8 +428,8 @@ def sync_stops_n_phis_of_all_routes():
 
     debug('Took {:.3f}s on networking.'.format(networking_sec))
     debug('Took {:.3f}s.'.format(time()-start_ts))
-    # debug: sync_stops_n_phis_of_all_routes: Took 110.586s on networking.
-    # debug: sync_stops_n_phis_of_all_routes: Took 133.775s.
+    # debug: sync_stops_n_phis_of_all_routes: Took 75.461s on networking.
+    # debug: sync_stops_n_phis_of_all_routes: Took 92.833s.
 
 def sync_stops_n_phis_of_route(route_id):
 
