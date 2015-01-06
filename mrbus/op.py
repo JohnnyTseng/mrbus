@@ -80,7 +80,7 @@ def create_tables():
                 it_is_return bool,
                 status_code  smallint,
                 waiting_min  smallint,
-                interval_min smallint,
+                interval_min numeric(5, 2),
                 updated_ts   timestamp,
                 created_ts   timestamp,
                 primary key (route_id, stop_id, serial_no)

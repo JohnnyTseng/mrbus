@@ -256,6 +256,7 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
 
     serial_no = 0
     it_is_return = False
+    last_waiting_min = None
     for rpage in route_page_pair:
 
         idx_sname_map = rpage.get_idx_name_map()
@@ -280,6 +281,17 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
                 status_code = 0
                 waiting_min = eta
 
+            # interval_min is the time from last stop to this stop
+            # so the driving_min will be sum(interval_min[here+1:there+1])
+            if (
+                last_waiting_min is not None and
+                waiting_min is not None and
+                waiting_min >= last_waiting_min
+            ):
+                interval_min = waiting_min-last_waiting_min
+            else:
+                interval_min = None
+
             pk = (route_id, stop_id, serial_no)
 
             pks.append(pk)
@@ -290,10 +302,11 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
                 'it_is_return': it_is_return,
                 'status_code' : status_code,
                 'waiting_min' : waiting_min,
-                'interval_min': None,
+                'interval_min': interval_min
             }
 
             serial_no += 1
+            last_waiting_min = waiting_min
 
         it_is_return = not it_is_return
 
@@ -335,7 +348,11 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
                     it_is_return = %(it_is_return)s,
                     status_code  = %(status_code)s,
                     waiting_min  = %(waiting_min)s,
-                    interval_min = %(interval_min)s,
+                    interval_min = coalesce(
+                        (interval_min+%(interval_min)s)/2,
+                        %(interval_min)s,
+                        interval_min
+                    ),
                     updated_ts   = %(updated_ts)s
                 where
                     (route_id, stop_id, serial_no) =
