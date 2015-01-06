@@ -25,7 +25,10 @@ def create_tables():
     # 3. created_ts
     #
 
-    # phi
+    # phi (Φ) - stops on routes
+    #
+    # because the alphabet looks like a route (|) corsses over a stop (o),
+    # lol.
     #
     # 1. route_id
     # 2. serial_no
@@ -72,9 +75,7 @@ def create_tables():
 
         cur.execute('create index on stop (name)')
 
-        # phi (Φ)
-        # because the alphabet looks like a route (|) corsses over a stop (o),
-        # lol.
+        # phi
 
         cur.execute('''
             create table phi (
