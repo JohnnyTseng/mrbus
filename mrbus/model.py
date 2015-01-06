@@ -10,7 +10,7 @@ from mrbus.conn import db
 
 _pool = Pool()
 
-def merge_routes_on_all_route_indexes():
+def sync_routes_on_all_route_indexes():
 
     start_ts = time()
 
@@ -207,7 +207,7 @@ _NZSCODE_SMESSAGE_MAP = {
     4: u'今日未營運',
 }
 
-def _merge_stops_on_route_page_pair(route_id, route_page_pair):
+def _sync_stops_n_phis_on_route_page_pair(route_id, route_page_pair):
 
     # merge stops first
 
@@ -395,7 +395,7 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
                 )
             ''', to_insert_pds)
 
-def merge_stops_of_all_routes():
+def sync_stops_n_phis_of_all_routes():
 
     start_ts = time()
     networking_sec = 0
@@ -424,14 +424,14 @@ def merge_stops_of_all_routes():
 
         # merge this route's stops
         for rid in rids:
-            _merge_stops_on_route_page_pair(rid, rid_rpagep_map[rid])
+            _sync_stops_n_phis_on_route_page_pair(rid, rid_rpagep_map[rid])
 
     debug('Took {:.3f}s on networking.'.format(networking_sec))
     debug('Took {:.3f}s.'.format(time()-start_ts))
-    # debug: merge_stops_of_all_routes: Took 110.586s on networking.
-    # debug: merge_stops_of_all_routes: Took 133.775s.
+    # debug: sync_stops_n_phis_of_all_routes: Took 110.586s on networking.
+    # debug: sync_stops_n_phis_of_all_routes: Took 133.775s.
 
-def merge_stops_of_route(route_id):
+def sync_stops_n_phis_of_route(route_id):
 
     start_ts = time()
 
@@ -447,7 +447,7 @@ def merge_stops_of_route(route_id):
 
     debug('Took {:.3f}s on networking.'.format(time()-start_ts))
 
-    _merge_stops_on_route_page_pair(route_id, rpagep)
+    _sync_stops_n_phis_on_route_page_pair(route_id, rpagep)
 
     debug('Took {:.3f}s.'.format(time()-start_ts))
 
@@ -566,7 +566,7 @@ if __name__ == '__main__':
 
     import sys; sys.exit()
 
-    merge_stops_of_route('tp_10723')
+    sync_stops_n_phis_of_route('tp_10723')
 
     import sys; sys.exit()
 
@@ -576,5 +576,5 @@ if __name__ == '__main__':
     import sys; sys.exit()
 
     # merge basic data into db
-    merge_routes_on_all_route_indexes()
-    merge_stops_of_route()
+    sync_routes_on_all_route_indexes()
+    sync_stops_n_phis_of_route()

@@ -3,8 +3,8 @@
 
 from mrbus.conn import db
 from mrbus.model import (
-    merge_routes_on_all_route_indexes,
-    merge_stops_of_all_routes
+    sync_routes_on_all_route_indexes,
+    sync_stops_n_phis_of_all_routes
 )
 
 def create_tables():
