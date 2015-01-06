@@ -153,6 +153,7 @@ def _create_route_page_pair(route_id):
     )
 
 def _query_route_ids_it(chunk_size=100):
+    # it: iterator
 
     offset = 0
 
