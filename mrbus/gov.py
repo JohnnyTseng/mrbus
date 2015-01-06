@@ -183,7 +183,17 @@ class _RoutePage(object):
         }
 
     def _parse_to_map_pair(self, api_text):
-        api_d = json.loads(api_text)
+
+        try:
+            api_d = json.loads(api_text)
+        except ValueError:
+            # ValueError: No JSON object could be decoded
+            # some of routes only has departure part (sec=0).
+            # if you ask the return part (sec=1),
+            # the page and api will return 'Not found' literally;
+            # we translate it into empty dict.
+            return ({}, {})
+
         return (
             self._transform_to_idx_eta_map(api_d),
             self._transform_to_idx_bus_map(api_d)
@@ -224,6 +234,14 @@ if __name__ == '__main__':
 
     import uniout
     from pprint import pprint
+
+    # nt_123 only has departure part.
+    ntrp = NewTaipeiRoutePage('123', 1)
+    pprint(ntrp.get_idx_name_map())
+    pprint(ntrp.get_idx_eta_map())
+    pprint(ntrp.get_idx_bus_map())
+
+    import sys; sys.exit()
 
     tpri = TaipeiRouteIndex()
     pprint(tpri.get_name_rid_map())
