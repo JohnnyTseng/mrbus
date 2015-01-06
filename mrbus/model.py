@@ -10,7 +10,7 @@ from mrbus.conn import db
 
 _pool = Pool()
 
-def merge_routes_on_route_indexes():
+def merge_routes_on_all_route_indexes():
 
     start_ts = time()
 
@@ -454,7 +454,7 @@ if __name__ == '__main__':
 
     import sys; sys.exit()
 
-    merge_routes_on_route_indexes()
+    merge_routes_on_all_route_indexes()
 
     import sys; sys.exit()
 
