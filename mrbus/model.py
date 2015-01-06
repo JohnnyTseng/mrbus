@@ -418,10 +418,34 @@ def merge_stops_on_all_route_pages():
     # debug: merge_stops_on_all_route_pages: Took 110.586s on networking.
     # debug: merge_stops_on_all_route_pages: Took 133.775s.
 
+def merge_stops(route_id):
+
+    start_ts = time()
+
+    rpagep = _create_route_page_pair(route_id)
+
+    # fetch pages asyncly
+    for rpage in rpagep:
+        _pool.apply_async(rpage.get_idx_name_map)
+        _pool.apply_async(rpage.get_idx_eta_map)
+
+    # wait for fetching pages
+    _pool.join()
+
+    debug('Took {:.3f}s on networking.'.format(time()-start_ts))
+
+    _merge_stops_on_route_page_pair(route_id, rpagep)
+
+    debug('Took {:.3f}s.'.format(time()-start_ts))
+
 if __name__ == '__main__':
 
     import uniout
     from pprint import pprint
+
+    merge_stops('tp_10723')
+
+    import sys; sys.exit()
 
     rid = 'tp_10723'
     rpp = _create_route_page_pair(rid)
