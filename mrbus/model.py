@@ -469,6 +469,82 @@ def query_stops(keyword):
 
         return all_to_dicts(cur)
 
+def query_plans(orig_stop_ids, dest_stop_ids):
+
+    with db as cur:
+
+        cur.execute('''
+            select distinct on (route_id)
+
+                -- the common part
+                route_id,
+                route.name
+                    as route_name,
+
+                -- from outer (orig_phi and joins)
+                orig_phi.serial_no
+                    as orig_serial_no,
+                orig_phi.it_is_return
+                    as orig_is_return,
+                orig_phi.stop_id
+                    as orig_stop_id,
+                stop.name
+                    as orig_stop_name,
+
+                -- from inner (dest_phi)
+                dest_phi.serial_no
+                    as dest_serial_no,
+                dest_phi.it_is_return
+                    as dest_is_return,
+                dest_phi.stop_id
+                    as dest_stop_id,
+                dest_phi.stop_name
+                    as dest_stop_name
+
+            -- the outer
+            from
+                phi as orig_phi
+            left join
+                route
+            on
+                route.id = route_id
+            left join
+                stop
+            on
+                stop.id = stop_id
+
+            -- the inner
+            inner join (
+                select
+                    route_id,
+                    serial_no,
+                    it_is_return,
+                    stop_id,
+                    stop.name as stop_name
+                from
+                    phi
+                left join
+                    stop
+                on
+                    stop.id = stop_id
+                where
+                    stop_id in %s
+            ) as dest_phi
+            using
+                (route_id)
+
+            where
+                orig_phi.stop_id in %s and
+                orig_phi.serial_no < dest_phi.serial_no
+            order by
+                route_id,
+                dest_phi.serial_no-orig_phi.serial_no
+
+            ;
+        ''', (tuple(orig_stop_ids), tuple(dest_stop_ids)))
+
+        return all_to_dicts(cur)
+
 if __name__ == '__main__':
 
     import uniout
@@ -479,6 +555,14 @@ if __name__ == '__main__':
 
     dest_stops = query_stops(u'西門')
     pprint(dest_stops)
+
+    orig_stop_ids = [s['id'] for s in orig_stops]
+    dest_stop_ids = [
+        s['id']
+        for s in dest_stops
+        if s['name'] in (u'西門', u'捷運西門站')
+    ]
+    pprint(query_plans(orig_stop_ids, dest_stop_ids))
 
     import sys; sys.exit()
 
