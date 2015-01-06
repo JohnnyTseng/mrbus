@@ -78,6 +78,7 @@ def create_tables():
                 stop_id      int references stop (id),
                 serial_no    smallint,
                 it_is_return bool,
+                status_code  smallint,
                 waiting_min  smallint,
                 interval_min smallint,
                 updated_ts   timestamp,

@@ -3,8 +3,7 @@
 
 __all__ = [
     'TaipeiRouteIndex', 'NewTaipeiRouteIndex',
-    'TaipeiRoutePage', 'NewTaipeiRoutePage',
-    'ETA_MESSAGE_MAP'
+    'TaipeiRoutePage', 'NewTaipeiRoutePage'
 ]
 
 import re
@@ -220,11 +219,6 @@ class NewTaipeiRoutePage(_RoutePage):
 
     _PAGE_URL_TPL = 'http://e-bus.ntpc.gov.tw/NTPCRoute/Tw/Map?rid={rid}&sec={sec}'
     _API_URL_TPL = 'http://e-bus.ntpc.gov.tw/NTPCRoute/Js/RouteInfo?rid={rid}&sec={sec}&_={_}'
-
-ETA_MESSAGE_MAP = {
-    254: u'已過末班',
-    255: u'未發車'
-}
 
 if __name__ == '__main__':
 

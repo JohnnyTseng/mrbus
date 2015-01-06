@@ -184,6 +184,22 @@ def _query_route_ids_it(chunk_size=100):
 
         offset += chunk_size
 
+# nzscode: nonzero status code
+_ETA_NZSCODE_MAP = {
+    255: 1,
+    254: 2,
+    253: 3,
+    252: 4,
+}
+
+# smessage: status_message
+NZSCODE_SMESSAGE_MAP = {
+    1: u'未發車',
+    2: u'已過末班',
+    3: u'交管不停靠',
+    4: u'今日未營運',
+}
+
 def _merge_stops_on_route_page_pair(route_id, route_page_pair):
 
     # merge stops first
@@ -257,7 +273,12 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
             eta = idx_eta_map[idx]
 
             stop_id = sname_sid_map[idx_sname_map[idx]]
-            waiting_min = eta if eta not in (254, 255) else None
+            if eta in _ETA_NZSCODE_MAP:
+                status_code = _ETA_NZSCODE_MAP[eta]
+                waiting_min = None
+            else:
+                status_code = 0
+                waiting_min = eta
 
             pk = (route_id, stop_id, serial_no)
 
@@ -267,6 +288,7 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
                 'stop_id'     : stop_id,
                 'serial_no'   : serial_no,
                 'it_is_return': it_is_return,
+                'status_code' : status_code,
                 'waiting_min' : waiting_min,
                 'interval_min': None,
             }
@@ -311,6 +333,7 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
                     phi
                 set
                     it_is_return = %(it_is_return)s,
+                    status_code  = %(status_code)s,
                     waiting_min  = %(waiting_min)s,
                     interval_min = %(interval_min)s,
                     updated_ts   = %(updated_ts)s
@@ -327,6 +350,7 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
                         stop_id,
                         serial_no,
                         it_is_return,
+                        status_code,
                         waiting_min,
                         interval_min,
                         updated_ts,
@@ -337,6 +361,7 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
                     %(stop_id)s,
                     %(serial_no)s,
                     %(it_is_return)s,
+                    %(status_code)s,
                     %(waiting_min)s,
                     %(interval_min)s,
                     %(updated_ts)s,
