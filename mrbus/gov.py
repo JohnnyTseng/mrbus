@@ -9,7 +9,7 @@ __all__ = [
 import re
 import json
 import requests
-from time import time
+from time import time, sleep
 from urlparse import urlparse, parse_qs
 from lxml import html
 from mrbus.util import debug
@@ -19,17 +19,29 @@ _HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
 }
 
-def _fetch_text(url, referer=None, encoding=None):
+def _fetch_text(url, referer=None, encoding=None, retry_n=3, default_val=''):
 
     headers = _HEADERS
     if referer is not None:
         headers = _HEADERS.copy()
         headers['Referer'] = referer
 
-    debug('GET {}'.format(url))
+    while retry_n:
 
-    resp = requests.get(url, headers=headers)
-    resp.raise_for_status()
+        debug('GET {}'.format(url))
+
+        try:
+            resp = requests.get(url, headers=headers)
+            resp.raise_for_status()
+        except IOError:
+            retry_n -= 1
+            sleep(1)
+            continue
+
+        break
+
+    else:
+        return default_val
 
     if encoding is not None:
         resp.encoding = encoding
@@ -70,6 +82,9 @@ class TaipeiRouteIndex(_RouteIndex):
 
     def _parse_to_name_rid_map(self, text):
 
+        if not text:
+            return {}
+
         name_rid_map = {}
 
         nocomment_text = self.JS_BLOCK_COMMENT_RE.sub('', text)
@@ -88,6 +103,9 @@ class NewTaipeiRouteIndex(_RouteIndex):
         return _fetch_text(self.URL, encoding='utf-8')
 
     def _parse_to_name_rid_map(self, text):
+
+        if not text:
+            return {}
 
         name_rid_map = {}
 
@@ -148,6 +166,9 @@ class _RoutePage(object):
 
     def _parse_to_idx_name_map(self, page_text):
 
+        if not page_text:
+            return {}
+
         idx_name_map = {}
 
         root = html.fromstring(page_text)
@@ -183,6 +204,9 @@ class _RoutePage(object):
         }
 
     def _parse_to_map_pair(self, api_text):
+
+        if not api_text:
+            return ({}, {})
 
         try:
             api_d = json.loads(api_text)
@@ -235,14 +259,6 @@ if __name__ == '__main__':
     import uniout
     from pprint import pprint
 
-    # nt_123 only has departure part.
-    ntrp = NewTaipeiRoutePage('123', 1)
-    pprint(ntrp.get_idx_name_map())
-    pprint(ntrp.get_idx_eta_map())
-    pprint(ntrp.get_idx_bus_map())
-
-    import sys; sys.exit()
-
     tpri = TaipeiRouteIndex()
     pprint(tpri.get_name_rid_map())
 
@@ -255,6 +271,12 @@ if __name__ == '__main__':
     pprint(tprp.get_idx_bus_map())
 
     ntrp = NewTaipeiRoutePage('114', 0)
+    pprint(ntrp.get_idx_name_map())
+    pprint(ntrp.get_idx_eta_map())
+    pprint(ntrp.get_idx_bus_map())
+
+    # nt_123 only has departure part.
+    ntrp = NewTaipeiRoutePage('123', 1)
     pprint(ntrp.get_idx_name_map())
     pprint(ntrp.get_idx_eta_map())
     pprint(ntrp.get_idx_bus_map())
