@@ -74,6 +74,8 @@ class Pool(object):
 
     def map(self, func, iterable):
 
+        # XXX: it seems nobody uses it
+
         # dispatch tasks
 
         for item in iterable:
