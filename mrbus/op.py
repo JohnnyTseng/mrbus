@@ -99,4 +99,4 @@ def drop_tables():
 if __name__ == '__main__':
 
     import clime
-    clime.start()
+    clime.start(debug=True)
