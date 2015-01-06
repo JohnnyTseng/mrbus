@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from time import time
-from mosql.query import select
 from mrbus.util import debug, get_now_dt
 from mrbus.pool import Pool
 from mrbus.gov import *
@@ -51,12 +50,15 @@ def merge_routes_on_all_route_indexes():
 
     with db as cur:
 
-        cur.execute(select(
-            'route',
-            where   = {'id not in': rid_rd_map},
-            columns = ('id', ),
-            for_    = 'update'
-        ))
+        cur.execute('''
+            select
+                id
+            from
+                route
+            where
+                id not in %s
+            for update
+        ''', (tuple(rid_rd_map), ))
 
         to_mark_on_index_false_rids = tuple(rid for rid, in cur)
         debug('len(to_mark_on_index_false_rids) = {!r}'.format(
@@ -76,12 +78,15 @@ def merge_routes_on_all_route_indexes():
 
     with db as cur:
 
-        cur.execute(select(
-            'route',
-            where   = {'id': rid_rd_map},
-            columns = ('id', 'name'),
-            for_    = 'update'
-        ))
+        cur.execute('''
+            select
+                id, name
+            from
+                route
+            where
+                id in %s
+            for update
+        ''', (tuple(rid_rd_map), ))
 
         to_skip_rid_set = set()
         to_update_rid_set = set()
@@ -210,11 +215,14 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
         sname_set.update(rpage.get_idx_name_map().itervalues())
 
     with db as cur:
-        cur.execute(select(
-            'stop',
-            where   = {'name': sname_set},
-            columns = ('name', 'id')
-        ))
+        cur.execute('''
+            select
+                name, id
+            from
+                stop
+            where
+                name in %s
+        ''', (tuple(sname_set), ))
         sname_sid_map = dict(cur)
 
     now_dt = get_now_dt()
@@ -240,11 +248,14 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
                     (%(name)s, %(created_ts)s)
             ''', to_insert_sds)
 
-            cur.execute(select(
-                'stop',
-                where   = {'name': (sd['name'] for sd in to_insert_sds)},
-                columns = ('name', 'id')
-            ))
+            cur.execute('''
+                select
+                    name, id
+                from
+                    stop
+                where
+                    name in %s
+            ''', (tuple(sd['name'] for sd in to_insert_sds), ))
 
             sname_sid_map.update(cur)
 
