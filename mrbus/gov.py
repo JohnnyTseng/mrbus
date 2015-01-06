@@ -14,6 +14,15 @@ from urlparse import urlparse, parse_qs
 from lxml import html
 from mrbus.util import debug
 
+# basic concept here:
+#
+# 1. fetch something via network
+# 2. parse it
+# 3. transform if need
+# 4. then cache within instance
+# 5. public get_* to get cahce or op the above procedures
+#
+
 _HEADERS = {
     'Referer': 'https://www.google.com/',
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
