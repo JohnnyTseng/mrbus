@@ -14,6 +14,18 @@ def debug(s):
 def get_now_dt():
     return datetime.now()
 
+def ensure_unicode(x, encoding='utf-8'):
+
+    if isinstance(x, unicode):
+        return x
+
+    if isinstance(x, str):
+        s = x
+    else:
+        s = str(x)
+
+    return s.decode(encoding)
+
 def escape_like_operand(s):
     # TODO: shall use mosql's once mosql has it
-    return s.replace('\\', '\\\\').replce('_', '\_').replace('%', '\%')
+    return ensure_unicode(s).replace('\\', '\\\\').replace('_', '\_').replace('%', '\%')
