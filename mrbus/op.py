@@ -25,13 +25,17 @@ def create_tables():
     # 3. created_ts
     #
 
-    # interval
+    # phi
     #
     # 1. route_id
     # 2. stop_id
-    # 3. interval_min
-    # 4. updated_ts
-    # 5. created_ts
+    # 3. serial_no
+    # 4. it_is_return
+    # 5. status_code
+    # 6. waiting_min
+    # 7. interval_min
+    # 8. updated_ts
+    # 9. created_ts
     #
 
     # serial  : 1 to 2147483647
