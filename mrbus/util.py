@@ -15,4 +15,5 @@ def get_now_dt():
     return datetime.now()
 
 def escape_like_operand(s):
+    # TODO: shall use mosql's once mosql has it
     return s.replace('\\', '\\\\').replce('_', '\_').replace('%', '\%')
