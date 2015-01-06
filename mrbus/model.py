@@ -193,7 +193,7 @@ _ETA_NZSCODE_MAP = {
 }
 
 # smessage: status_message
-NZSCODE_SMESSAGE_MAP = {
+_NZSCODE_SMESSAGE_MAP = {
     1: u'未發車',
     2: u'已過末班',
     3: u'交管不停靠',
