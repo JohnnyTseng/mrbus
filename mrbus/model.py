@@ -441,43 +441,15 @@ def merge_stops_of_route(route_id):
 
 if __name__ == '__main__':
 
-    import uniout
-    from pprint import pprint
-
     merge_stops_of_route('tp_10723')
 
     import sys; sys.exit()
 
-    rid = 'tp_10723'
-    rpp = _create_route_page_pair(rid)
-    _merge_stops_on_route_page_pair(rid, rpp)
-
-    import sys; sys.exit()
-
-    merge_stops_of_all_routes()
-
-    import sys; sys.exit()
-
-    rid = 'tp_10723'
-    rpp = _create_route_page_pair(rid)
-    _merge_stops_on_route_page_pair(rid, rpp)
-
-    import sys; sys.exit()
-
-    for rids in _query_route_ids_it():
+    for rids in  _query_route_ids_it():
         print len(rids)
 
     import sys; sys.exit()
 
-    rids_it = _query_route_ids_it(3)
-    print next(rids_it)
-    print next(rids_it)
-
-    import sys; sys.exit()
-
+    # merge basic data into db
     merge_routes_on_all_route_indexes()
-
-    import sys; sys.exit()
-
-    rp0, rp1 = _create_route_page_pair('tp_10723')
-    pprint(rp0.get_idx_eta_map())
+    merge_stops_of_route()
