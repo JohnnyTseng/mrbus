@@ -483,9 +483,9 @@ def query_plans(orig_stop_ids, dest_stop_ids):
 
                 -- from outer (orig_phi and joins)
                 orig_phi.serial_no
-                    as orig_serial_no,
+                    as orig_phi_serial_no,
                 orig_phi.it_is_return
-                    as orig_is_return,
+                    as orig_phi_is_return,
                 orig_phi.stop_id
                     as orig_stop_id,
                 stop.name
@@ -493,9 +493,9 @@ def query_plans(orig_stop_ids, dest_stop_ids):
 
                 -- from inner (dest_phi)
                 dest_phi.serial_no
-                    as dest_serial_no,
+                    as dest_phi_serial_no,
                 dest_phi.it_is_return
-                    as dest_is_return,
+                    as dest_phi_is_return,
                 dest_phi.stop_id
                     as dest_stop_id,
                 dest_phi.stop_name
