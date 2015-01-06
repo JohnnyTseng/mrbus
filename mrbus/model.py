@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from time import time
-from mrbus.util import debug, get_now_dt
+from mosql.db import all_to_dicts
+from mrbus.util import debug, get_now_dt, escape_like_operand
 from mrbus.pool import Pool
 from mrbus.gov import *
 from mrbus.conn import db
@@ -450,7 +451,36 @@ def merge_stops_of_route(route_id):
 
     debug('Took {:.3f}s.'.format(time()-start_ts))
 
+def query_stops(keyword):
+
+    with db as cur:
+
+        cur.execute('''
+            select
+                id,
+                name
+            from
+                stop
+            where
+                name like %s
+            order by
+                char_length(name)
+        ''', (u'%{}%'.format(escape_like_operand(keyword)), ))
+
+        return all_to_dicts(cur)
+
 if __name__ == '__main__':
+
+    import uniout
+    from pprint import pprint
+
+    orig_stops = query_stops(u'台電大樓')
+    pprint(orig_stops)
+
+    dest_stops = query_stops(u'西門')
+    pprint(dest_stops)
+
+    import sys; sys.exit()
 
     merge_stops_of_route('tp_10723')
 
