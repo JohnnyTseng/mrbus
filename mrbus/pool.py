@@ -6,6 +6,7 @@
 
 from threading import Thread
 from Queue import Queue
+from mrbus.util import debug
 
 class _Worker(Thread):
 
@@ -26,6 +27,13 @@ class _Worker(Thread):
                 retval = func(*(args or ()), **(argd or {}))
             except BaseException as e:
                 retval = e
+                debug('{}: {} from {} {} {}'.format(
+                    e.__class__.__name__,
+                    e,
+                    func,
+                    args,
+                    argd
+                ))
 
             self._task_que.task_done()
 
