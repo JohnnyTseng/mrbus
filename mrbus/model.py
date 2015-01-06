@@ -300,14 +300,14 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
             else:
                 interval_min = None
 
-            pk = (route_id, stop_id, serial_no)
+            pk = (route_id, serial_no)
 
             pks.append(pk)
             pk_pd_map[pk] = {
                 'route_id'    : route_id,
-                'stop_id'     : stop_id,
                 'serial_no'   : serial_no,
                 'it_is_return': it_is_return,
+                'stop_id'     : stop_id,
                 'status_code' : status_code,
                 'waiting_min' : waiting_min,
                 'interval_min': interval_min
@@ -322,11 +322,11 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
 
         cur.execute('''
             select
-                route_id, stop_id, serial_no
+                route_id, serial_no
             from
                 phi
             where
-                (route_id, stop_id, serial_no) in %s
+                (route_id, serial_no) in %s
             for update
         ''', (tuple(pks), ))
         existent_pk_set = set(cur)
@@ -354,6 +354,7 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
                     phi
                 set
                     it_is_return = %(it_is_return)s,
+                    stop_id      = %(stop_id)s,
                     status_code  = %(status_code)s,
                     waiting_min  = %(waiting_min)s,
                     interval_min = coalesce(
@@ -363,8 +364,7 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
                     ),
                     updated_ts   = %(updated_ts)s
                 where
-                    (route_id, stop_id, serial_no) =
-                        (%(route_id)s, %(stop_id)s, %(serial_no)s)
+                    (route_id, serial_no) = (%(route_id)s, %(serial_no)s)
             ''', to_update_pds)
 
         if to_insert_pds:
@@ -372,9 +372,9 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
                 insert into
                     phi (
                         route_id,
-                        stop_id,
                         serial_no,
                         it_is_return,
+                        stop_id,
                         status_code,
                         waiting_min,
                         interval_min,
@@ -383,9 +383,9 @@ def _merge_stops_on_route_page_pair(route_id, route_page_pair):
                     )
                 values (
                     %(route_id)s,
-                    %(stop_id)s,
                     %(serial_no)s,
                     %(it_is_return)s,
+                    %(stop_id)s,
                     %(status_code)s,
                     %(waiting_min)s,
                     %(interval_min)s,

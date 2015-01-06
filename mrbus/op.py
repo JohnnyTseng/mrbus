@@ -28,9 +28,9 @@ def create_tables():
     # phi
     #
     # 1. route_id
-    # 2. stop_id
-    # 3. serial_no
-    # 4. it_is_return
+    # 2. serial_no
+    # 3. it_is_return
+    # 4. stop_id
     # 5. status_code
     # 6. waiting_min
     # 7. interval_min
@@ -79,15 +79,15 @@ def create_tables():
         cur.execute('''
             create table phi (
                 route_id     text references route (id),
-                stop_id      int references stop (id),
                 serial_no    smallint,
                 it_is_return bool,
+                stop_id      int references stop (id),
                 status_code  smallint,
                 waiting_min  smallint,
                 interval_min numeric(5, 2),
                 updated_ts   timestamp,
                 created_ts   timestamp,
-                primary key (route_id, stop_id, serial_no)
+                primary key (route_id, serial_no)
             )
         ''')
 
