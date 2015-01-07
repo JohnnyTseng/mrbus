@@ -205,7 +205,11 @@ class _RoutePage(object):
 
     def _transform_to_idx_bus_map(self, api_d):
 
-        # TODO: what is fl and io?
+        # fl -> "h" means 一般公車
+        # fl -> "l" means 低地板公車
+
+        # io -> "i" means 進站中
+        # io -> "o" means 離站中
 
         return {
             d['idx']: d
